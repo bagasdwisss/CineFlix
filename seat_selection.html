@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Kursi - CineFlix</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --accent-color: #ff4d4d;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+        
+        body {
+            background: var(--dark-color);
+            color: var(--light-color);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(26, 26, 46, 0.9) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .booking-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=SEAT+SELECTION');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 100px 0 60px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+        
+        .booking-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, var(--dark-color));
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .booking-info {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .booking-info h4 {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .booking-info h5 {
+            font-weight: 500;
+            margin-top: 15px;
+        }
+        
+        .booking-info p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+        
+        .seat-selection {
+            max-width: 1000px;
+            margin: 0 auto 40px;
+        }
+        
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 12px;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0 2px; 
+        }
+
+        .seat-spacer{
+            width: 20px;
+            height: 1px;
+        }
+
+        .screen {
+            background: linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin: 30px auto 0;
+            width: fit-content;
+            min-width: 100%;
+            border-radius: 5px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .seat:hover:not(.occupied) {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .seat.selected {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+        
+        .seat.occupied {
+            background: rgba(255, 0, 0, 0.2);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+        }
+        
+        .summary {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-top: 40px;
+        }
+        
+        .summary h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--light-color);
+        }
+        
+        #order-summary {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            padding: 12px 40px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        #order-summary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(106, 17, 203, 0.4);
+        }
+        
+        #order-summary:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+        
+        footer {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            .booking-header {
+                padding: 80px 0 40px;
+                background-attachment: scroll;
+            }
+            
+            .seat {
+                width: 30px;
+                height: 30px;
+                font-size: 0.7rem;
+            }
+            
+            .seat-row {
+                gap: 5px;
+                margin-bottom: 5px;
+            }
+            
+            .screen {
+                width: 95%;
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-film me-2"></i>CineFlix
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_news.html">Flix News</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_events.html">Flix Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_foods.html">Flix Foods</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="booking-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="booking-title">PILIH KURSI</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="booking-info">
+                    <h4 id="movie-title"></h4>
+                    <h5 id="cinema-name"></h5>
+                    <p id="showtime"></p>
+                    <p id="ticket-price"></p>
+                </div>
+
+                <h2 class="section-title text-center">Pilih Kursi</h2>
+                <div class="seat-selection">
+                    <div class="seats">
+                    </div>
+                    <div class="screen">LAYAR</div>
+                </div>
+
+                <div class="summary">
+                    <h3>Total Harga: <span id="total-price">Rp 0</span></h3>
+                    <h3>Tempat Duduk: <span id="selected-seats">Kursi belum dipilih</span></h3>
+                    <button id="order-summary" class="btn btn-primary" disabled>
+                        <i class="fas fa-ticket-alt me-2"></i>Ringkasan Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="flix_news.html">News</a>
+                <a href="flix_events.html">Events</a>
+                <a href="flix_foods.html">Foods</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <p class="text-center mb-0">&copy; 2025 CineFlix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const seatContainer = document.querySelector('.seats');
+        let selectedSeats = [];
+        let bookingData = {};
+        let ticketPrice = 0;
+
+        function loadBookingData() {
+            const savedData = localStorage.getItem('bookingData');
+            if (savedData) {
+                bookingData = JSON.parse(savedData);
+                ticketPrice = bookingData.ticketPrice;
+                document.getElementById('movie-title').textContent = bookingData.movie;
+                document.getElementById('cinema-name').textContent = bookingData.cinema;
+                document.getElementById('showtime').textContent = `${bookingData.date} | ${bookingData.time}`;
+                document.getElementById('ticket-price').textContent = `Harga per tiket: Rp ${ticketPrice.toLocaleString('id-ID')} (${bookingData.isWeekend ? 'Weekend' : 'Weekday'})`;
+            }
+        }
+
+        function generateSeats() {
+            seatContainer.innerHTML = '';
+            for (let row of "ABCDEFGHIJKLMN") {
+                let rowDiv = document.createElement('div');
+                rowDiv.classList.add('seat-row');
+                for (let num = 1; num <= 18; num++) {
+                    let seat = document.createElement('div');
+                    seat.classList.add('seat', 'available');
+                    seat.textContent = row + num;
+                    seat.onclick = () => toggleSeat(seat);
+                    
+                    if (Math.random() < 0.2) {
+                        seat.classList.remove('available');
+                        seat.classList.add('occupied');
+                    }
+                    
+                    rowDiv.appendChild(seat);
+                }
+                seatContainer.appendChild(rowDiv);
+            }
+
+                for (let num = 1; num <= 18; num++) {
+                let seat = document.createElement('div');
+                seat.classList.add('seat', 'available');
+                seat.textContent = row + num;
+                seat.onclick = () => toggleSeat(seat);
+
+                if (Math.random() < 0.2) {
+                    seat.classList.remove('available');
+                    seat.classList.add('occupied');
+                }
+
+                rowDiv.appendChild(seat);
+
+                if (num === 4 || num === 14 || num === 18) {
+                    let spacer = document.createElement('div');
+                    spacer.style.width = '200px'; 
+                    spacer.style.height = '1px'; 
+                    rowDiv.appendChild(spacer);
+                }
+            }
+
+        }
+
+        function toggleSeat(seat) {
+            if (seat.classList.contains('available')) {
+                seat.classList.toggle('selected');
+                let seatId = seat.textContent;
+                if (selectedSeats.includes(seatId)) {
+                    selectedSeats = selectedSeats.filter(s => s !== seatId);
+                } else {
+                    selectedSeats.push(seatId);
+                }
+                updateSummary();
+            }
+        }
+
+        function updateSummary() {
+            let totalPrice = selectedSeats.length * ticketPrice;
+            document.getElementById('total-price').textContent = "Rp " + totalPrice.toLocaleString('id-ID');
+            document.getElementById('selected-seats').textContent = selectedSeats.length > 0 ? selectedSeats.join(', ') : "Kursi belum dipilih";
+            document.getElementById('order-summary').disabled = selectedSeats.length === 0;
+        }
+
+        document.getElementById('order-summary').addEventListener('click', function() {
+            if (selectedSeats.length > 0) {
+                const bookingDetails = {
+                    ...bookingData,
+                    seats: selectedSeats,
+                    totalPrice: selectedSeats.length * ticketPrice,
+                    bookingId: 'FLIX-' + Date.now().toString().slice(-8), 
+                    paymentDate: new Date().toLocaleString('id-ID') 
+                };
+                
+                localStorage.setItem('currentBooking', JSON.stringify(bookingDetails));
+                localStorage.setItem('receiptData', JSON.stringify(bookingDetails));
+                
+                window.location.href = "payment.html";
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBookingData();
+            generateSeats();
+        });
+
+
+        function generateBookingId() {
+            return 'BK-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+        }
+
+        function checkLoginStatus() {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            const loginLink = document.querySelector('a[href="login.html"]');
+            
+            if (loggedInUser) {
+                if (loginLink) {
+                    loginLink.innerHTML = '<i class="fas fa-user-circle me-1"></i>Profile';
+                    loginLink.href = 'profile.html';
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
+</body>
+</html>

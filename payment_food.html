@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Makanan - CineFlix</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --accent-color: #ff4d4d;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --success-color: #28a745;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark-color), #16213e);
+            color: var(--light-color);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(26, 26, 46, 0.9) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin-top: 30px;
+        }
+        
+        h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .order-summary {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .payment-methods {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .payment-method:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .payment-method.selected {
+            border: 1px solid var(--secondary-color);
+            background: rgba(37, 117, 252, 0.1);
+        }
+        
+        .payment-method img {
+            width: 50px;
+            height: 30px;
+            object-fit: contain;
+            margin-right: 20px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .payment-method .form-check-input {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            background-color: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .payment-method .form-check-input:checked {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .payment-method label {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .form-check {
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .form-check:hover {
+            border-color: var(--secondary-color);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .form-check-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .form-check-label img {
+            margin-left: 15px;
+            margin-right: 15px;
+            height: 30px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(106, 17, 203, 0.4);
+        }
+        
+        #food-package {
+            font-weight: 600;
+            color: var(--light-color);
+        }
+        
+        #food-cinema {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        #food-total {
+            color: var(--success-color);
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .order-summary, .payment-methods {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-film me-2"></i>CineFlix
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_news.html">Flix News</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_events.html">Flix Events</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="flix_foods.html">Flix Foods</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="mb-5">Pembayaran Makanan</h2>
+        
+        <div class="order-summary">
+            <h4 id="food-package" class="fw-bold"></h4>
+            <p id="food-cinema" class="mb-4"></p>
+            <h5 class="mt-3">Total Pembayaran: <span id="food-total"></span></h5>
+        </div>
+
+        <div class="payment-methods">
+            <div class="payment-method">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="gopay" value="Gopay" checked>
+                <label class="form-check-label" for="gopay">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/1200px-Gopay_logo.svg.png" alt="Gopay">
+                    Gopay
+                </label>
+            </div>
+            <div class="payment-method">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="ShopeePay" value="ShopeePay">
+                <label class="form-check-label" for="shopeePay">
+                    <img src="assets/ShopeePay.png" alt="ShopeePay">
+                    ShopeePay
+                </label>
+            </div>
+            <div class="payment-method">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="dana" value="DANA">
+                <label class="form-check-label" for="dana">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA">
+                    DANA
+                </label>
+            </div>
+            <div class="payment-method">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="PayPal" value="PayPal">
+                <label class="form-check-label" for="PayPal">
+                    <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="PayPal">
+                    PayPal
+                </label>
+            </div>
+            <div class="payment-method">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="Credit Card">
+                <label class="form-check-label" for="creditCard">
+                    <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Credit Card">
+                    Credit Card
+                </label>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-primary btn-lg px-5" onclick="processFoodPayment()">
+                <i class="fas fa-credit-card me-2"></i>Bayar Sekarang
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function loadFoodOrder() {
+            const foodOrder = JSON.parse(localStorage.getItem('currentFoodOrder'));
+            if (foodOrder) {
+                document.getElementById('food-package').textContent = foodOrder.package;
+                document.getElementById('food-cinema').textContent = `Lokasi: ${foodOrder.cinema}`;
+                document.getElementById('food-total').textContent = `Rp ${foodOrder.totalPrice.toLocaleString('id-ID')}`;
+            }
+        }
+
+        function processFoodPayment() {
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const foodOrder = JSON.parse(localStorage.getItem('currentFoodOrder'));
+            
+            foodOrder.paymentMethod = paymentMethod;
+            foodOrder.paymentStatus = 'Success';
+            foodOrder.paymentDate = new Date().toLocaleString('id-ID');
+            
+            let foodHistory = JSON.parse(localStorage.getItem('foodHistory') || []);
+            const index = foodHistory.findIndex(item => item.orderId === foodOrder.orderId);
+            if (index !== -1) {
+                foodHistory[index] = foodOrder;
+                localStorage.setItem('foodHistory', JSON.stringify(foodHistory));
+            }
+            
+            localStorage.setItem('foodReceiptData', JSON.stringify(foodOrder));
+            
+            window.location.href = "receipt_food.html";
+        }
+
+        function checkLoginStatus() {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            const loginLink = document.querySelector('a[href="login.html"]');
+            
+            if (loggedInUser) {
+                if (loginLink) {
+                    loginLink.innerHTML = '<i class="fas fa-user-circle me-1"></i>Profile';
+                    loginLink.href = 'profile.html';
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+        loadFoodOrder();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

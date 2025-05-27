@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CineFlix - Welcome</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark-color), #0a0a14);
+            color: var(--light-color);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .typing-text {
+            border-right: 2px solid #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: blinking-cursor 0.8s step-end infinite;
+            display: inline-block;
+        }
+
+        #logo-intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .intro-content {
+            position: relative;
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .spotlight {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0;
+            animation: spotlight 3s ease-out forwards;
+        }
+
+        .logo-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: fadeIn 0.5s ease-out 1s forwards;
+            width: 100%;
+        }
+
+        .logo-main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-icon {
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            margin-right: 10px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: blink 2s infinite alternate;
+        }
+
+        .logo-text {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: blink 2s infinite alternate;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .tagline-container {
+            margin-top: 15px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #taglineText {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: white;
+            letter-spacing: 1px;
+            opacity: 0;
+            line-height: 1.5;
+            padding: 0 10px;
+            word-wrap: break-word;
+        }
+
+        .tagline-letter {
+            display: inline-block;
+            opacity: 0;
+            position: relative;
+        }
+
+        .tagline-letter.illuminated {
+            opacity: 1;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 
+                        0 0 20px var(--primary-color),
+                        0 0 30px var(--secondary-color);
+            animation: illuminate 0.5s ease-out forwards;
+        }
+
+        #taglineText.flicker {
+            opacity: 1;
+            animation: flicker 0.8s ease-in-out forwards;
+        }
+
+        #taglineText.full-bright {
+            opacity: 1;
+            color: white;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 
+                        0 0 10px var(--primary-color),
+                        0 0 15px var(--secondary-color);
+        }
+
+        @keyframes spotlight {
+            0% {
+                width: 50px;
+                height: 50px;
+                opacity: 0;
+                left: 20%;
+                top: 70%;
+            }
+            20% {
+                opacity: 0.7;
+                width: 150px;
+                height: 150px;
+            }
+            40% {
+                left: 30%;
+                top: 30%;
+            }
+            60% {
+                left: 70%;
+                top: 60%;
+            }
+            80% {
+                left: 50%;
+                top: 50%;
+                width: 300px;
+                height: 300px;
+            }
+            100% {
+                left: 50%;
+                top: 50%;
+                width: 100vmax;
+                height: 100vmax;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes blink {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow: 0 0 10px rgba(106, 17, 203, 0.5), 0 0 20px rgba(37, 117, 252, 0.3);
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes illuminate {
+            0% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 1), 
+                            0 0 30px var(--primary-color),
+                            0 0 40px var(--secondary-color);
+            }
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 
+                            0 0 20px var(--primary-color),
+                            0 0 30px var(--secondary-color);
+            }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            10% { opacity: 0.3; }
+            20% { opacity: 0.8; }
+            30% { opacity: 0.2; }
+            40% { opacity: 0.7; }
+            50% { opacity: 0.3; }
+            60% { opacity: 0.8; }
+            70% { opacity: 0.4; }
+            80% { opacity: 0.9; }
+            90% { opacity: 0.2; }
+        }
+
+        @keyframes blinking-cursor {
+            from, to { border-color: transparent }
+            50% { border-color: transparent; }
+        }
+
+        @media (max-width: 768px) {
+            .logo-main {
+                flex-direction: column;
+            }
+            
+            .logo-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .logo-text {
+                letter-spacing: 0.5px;
+            }
+            
+            #taglineText {
+                letter-spacing: 0.5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 2.2rem;
+            }
+            
+            #taglineText {
+                font-size: 1rem;
+            }
+            
+            .spotlight {
+                animation: spotlight 2.5s ease-out forwards;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 500px) {
+            .logo-container {
+                transform: scale(0.7);
+            }
+            
+            .logo-text {
+                font-size: 2.5rem;
+            }
+            
+            #taglineText {
+                font-size: 1rem;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="logo-intro-overlay">
+        <div class="intro-content">
+            <div class="spotlight"></div>
+            <div class="logo-container">
+                <div class="logo-main">
+                    <i class="fas fa-film logo-icon"></i>
+                    <div class="logo-text">CineFlix</div>
+                </div>
+                <div class="tagline-container">
+                    <span id="taglineText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const spotlight = document.querySelector('.spotlight');
+        const introContent = document.querySelector('.intro-content');
+        
+        for (let i = 0; i < 2; i++) {
+            const clonedSpotlight = spotlight.cloneNode();
+            clonedSpotlight.style.animation = `spotlight ${3 + i * 0.5}s ease-out ${0.5 + i * 0.3}s forwards`;
+            introContent.appendChild(clonedSpotlight);
+        }
+        
+        const tagline = "Book Anytime, Anywhere";
+        const taglineElement = document.getElementById("taglineText");
+        
+        function prepareTagline() {
+            taglineElement.innerHTML = '';
+            for (let i = 0; i < tagline.length; i++) {
+                const letterSpan = document.createElement('span');
+                letterSpan.className = 'tagline-letter';
+                letterSpan.textContent = tagline[i] === ' ' ? '\u00A0' : tagline[i];
+                taglineElement.appendChild(letterSpan);
+            }
+        }
+        
+        async function illuminateLetters() {
+            const letters = taglineElement.querySelectorAll('.tagline-letter');
+            for (let i = 0; i < letters.length; i++) {
+                letters[i].classList.add('illuminated');
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            taglineElement.classList.add('flicker');
+            
+            await new Promise(resolve => setTimeout(resolve, 900));
+            
+            taglineElement.classList.remove('flicker');
+            taglineElement.classList.add('full-bright');
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            redirectToIndex();
+        }
+        
+        function redirectToIndex() {
+            localStorage.setItem('introShown', 'true');
+            window.location.href = 'index.html';
+        }
+        
+        function handleResize() {
+            if (window.innerHeight < 500 && window.innerWidth > window.innerHeight) {
+                document.querySelector('.logo-container').style.transform = 'scale(0.7)';
+            }
+        }
+        
+        window.addEventListener('resize', handleResize);
+        handleResize();
+        
+        setTimeout(() => {
+            prepareTagline();
+            setTimeout(() => {
+                illuminateLetters();
+            }, 2000);
+        }, 200);
+    </script>
+</body>
+</html>

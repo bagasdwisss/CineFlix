@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ne Zha 2 (哪吒之魔童闹海) (2025) - CineFlix</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --accent-color: #ff4d4d;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+        
+        body {
+            background: var(--dark-color);
+            color: var(--light-color);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(26, 26, 46, 0.9) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .movie-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=AVATAR');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 120px 0 80px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+        
+        .movie-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, var(--dark-color));
+        }
+        
+        .movie-poster {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+        
+        .movie-poster:hover {
+            transform: scale(1.03);
+        }
+        
+        .movie-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .movie-info {
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .movie-info .badge {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+        
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rating-stars {
+            color: #ffc107;
+            font-size: 1.2rem;
+        }
+        
+        .rating-value {
+            font-weight: 700;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-trailer {
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-trailer:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        .btn-tickets {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-tickets:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+        
+        .synopsis {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .movie-details {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .detail-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        
+        .cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .cast-member {
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .cast-member:hover {
+            transform: translateY(-10px);
+        }
+        
+        .cast-photo {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--secondary-color);
+            margin-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .cast-member:hover .cast-photo {
+            border-color: var(--primary-color);
+            box-shadow: 0 15px 30px rgba(106, 17, 203, 0.4);
+        }
+        
+        .cast-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .cast-role {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        .cinema-brands {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .cinema-brands img {
+            height: 30px;
+            filter: grayscale(100%) brightness(2);
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+        
+        .cinema-brands img:hover {
+            filter: none;
+            opacity: 1;
+        }
+        
+        footer {
+            background: linear-gradient(135deg, var(--dark-color), #16213e);
+            backdrop-filter: blur(10px);
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-5px);
+        }
+
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            position: fixed;
+            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 80%;
+            max-width: 720px;
+        }
+
+        .modal-content video {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .close {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .movie-title {
+                font-size: 2.5rem;
+            }
+            
+            .movie-header {
+                padding: 80px 0 60px;
+                background-attachment: scroll;
+            }
+            
+            .cast-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-film me-2"></i>CineFlix
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_news.html">Flix News</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_events.html">Flix Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_foods.html">Flix Foods</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="movie-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <img src="assets/nezha.jpg" class="movie-poster" alt="Nezha">
+                </div>
+                <div class="col-lg-8">
+                    <h1 class="movie-title">Ne Zha 2 (哪吒之魔童闹海) (2025)</h1>
+                    
+                    <div class="movie-info">
+                        <span class="badge">Martial Arts</span>
+                        <span class="badge">Action</span>
+                        <span class="badge">Animation</span>
+                        <span class="badge">2h 23m</span>
+                        
+                        <div class="movie-rating">
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="rating-value">4.5/5</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cinema-brands">
+                        <span>Now showing at:</span> <span class="badge bg-warning text-dark">XXI </span> <span class="badge bg-danger">CGV</span> <span class="badge bg-primary">Cinépolis</span>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn-trailer" onclick="playTrailer()">
+                          <i class="fas fa-play"></i> Watch Trailer
+                        </button>
+                      
+                        <button class="btn-tickets" onclick="buyTickets()">
+                          <i class="fas fa-ticket-alt"></i> Buy Tickets
+                        </button>
+                      </div>
+                      
+                      <div id="trailerModal" class="modal">
+                        <div class="modal-content">
+                          <span class="close" onclick="closeTrailer()">&times;</span>
+                          <video id="trailerVideo" controls muted>
+                            <source src="assets/trailer7.mp4" type="video/mp4">
+                            Browser kamu tidak mendukung video ini.
+                          </video>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mb-5 mb-lg-0">
+                <h2 class="section-title">Sinopsis</h2>
+                <p class="synopsis">
+                    *Ne Zha 2*, atau dikenal sebagai *New Gods: Nezha Reborn*, adalah film animasi aksi fantasi yang merupakan lanjutan dari kisah klasik Ne Zha, dipadukan dengan elemen cyberpunk modern. Disutradarai oleh Zhao Ji, film ini melanjutkan kisah reinkarnasi Ne Zha dalam dunia alternatif bernama Donghai City, di mana teknologi dan mitologi bertabrakan.
+                    <br><br>
+                    Li Yunxiang, seorang pengantar barang pemberani dan pecinta balapan motor, tiba-tiba menyadari bahwa dirinya adalah reinkarnasi dari Dewa Ne Zha. Ia harus menerima takdirnya dan berjuang melawan musuh bebuyutan lamanya dari kehidupan masa lalu, termasuk Ao Bing, yang kini hadir dalam wujud baru.
+                    <br><br>
+                    Dengan visual menawan, aksi spektakuler, dan cerita yang menggugah tentang identitas, takdir, dan pemberontakan terhadap ketidakadilan, *Ne Zha 2* mengukuhkan tempatnya sebagai salah satu animasi modern terbaik dari Tiongkok.
+                </p>
+
+                <h2 class="section-title">Cast</h2>
+                <div class="cast-grid">
+                    <div class="cast-member">
+                        <img src="assets/yangtiangxang.jpg" class="cast-photo" alt="Yang Tianxiang">
+                        <h5 class="cast-name">Yang Tianxiang</h5>
+                        <p class="cast-role">Li Yunxiang / Ne Zha (Voice)</p>
+                    </div>
+                    <div class="cast-member">
+                        <img src="assets/zhanghe.jpg" class="cast-photo" alt="Zhang He">
+                        <h5 class="cast-name">Zhang He</h5>
+                        <p class="cast-role">Ao Bing (Voice)</p>
+                    </div>
+                    <div class="cast-member">
+                        <img src="assets/xuanxiaojie.jpg" class="cast-photo" alt="Xuan Xiaojie">
+                        <h5 class="cast-name">Xuan Xiaojie</h5>
+                        <p class="cast-role">Kasha (Voice)</p>
+                    </div>
+                    <div class="cast-member">
+                        <img src="assets/liqin.jpg" class="cast-photo" alt="Li Qing">
+                        <h5 class="cast-name">Li Qing</h5>
+                        <p class="cast-role">Su Junchu (Voice)</p>
+                    </div>
+                    <div class="cast-member">
+                        <img src="assets/haohao.jpg" class="cast-photo" alt="Hao Hao">
+                        <h5 class="cast-name">Hao Hao</h5>
+                        <p class="cast-role">Shen Gongbao (Voice)</p>
+                    </div>
+                    <div class="cast-member">
+                        <img src="assets/lianyan.jpg" class="cast-photo" alt="Lian Yan">
+                        <h5 class="cast-name">Lian Yan</h5>
+                        <p class="cast-role">Sister (Voice)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="movie-details">
+                    <h3 class="section-title">Movie Details</h3>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Director</div>
+                        <div>Zhao Ji</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Writers</div>
+                        <div>Mu Chuan</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Release Date</div>
+                        <div>February 2021</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Duration</div>
+                        <div>1 hour 56 minutes</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Language</div>
+                        <div>Mandarin</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Age Rating</div>
+                        <div>PG-13 (Fantasy Action, Violence)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Box Office</div>
+                        <div>Over $80 million</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Awards</div>
+                        <div>Nominated at Golden Rooster Awards for Best Animated Film</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="flix_news.html">News</a>
+                <a href="flix_events.html">Events</a>
+                <a href="flix_foods.html">Foods</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <p class="text-center mb-0">&copy; 2025 CineFlix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function playTrailer() {
+        const modal = document.getElementById("trailerModal");
+        const video = document.getElementById("trailerVideo");
+
+        modal.classList.add("show");
+
+        setTimeout(() => {
+            video.currentTime = 0;
+            video.muted = true;
+            video.play();
+        }, 300); 
+        }
+
+        function closeTrailer() {
+        const modal = document.getElementById("trailerModal");
+        const video = document.getElementById("trailerVideo");
+
+        video.pause();
+        video.currentTime = 0;
+
+        modal.classList.remove("show");
+        }
+
+        function buyTickets() {
+            window.location.href = "booking.html?movie=Ne Zha 2 (哪吒之魔童闹海)";
+        }
+
+        function checkLoginStatus() {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            const loginLink = document.querySelector('a[href="login.html"]');
+            
+            if (loggedInUser) {
+                if (loginLink) {
+                    loginLink.innerHTML = '<i class="fas fa-user-circle me-1"></i>Profile';
+                    loginLink.href = 'profile.html';
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
+</body>
+</html>

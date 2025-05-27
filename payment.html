@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran - CineFlix</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --accent-color: #ff4d4d;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+        
+        body {
+            background: var(--dark-color);
+            color: var(--light-color);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(26, 26, 46, 0.9) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .payment-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://via.placeholder.com/1920x1080/1a1a2e/ffffff?text=PAYMENT');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 100px 0 60px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+        
+        .payment-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, var(--dark-color));
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .booking-summary {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .booking-summary h4 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .booking-summary p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+        
+        .booking-summary h5 {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            color: var(--light-color);
+        }
+        
+        .payment-methods {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .payment-method:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .payment-method.selected {
+            border: 1px solid var(--secondary-color);
+            background: rgba(37, 117, 252, 0.1);
+        }
+        
+        .payment-method img {
+            width: 50px;
+            height: 30px;
+            object-fit: contain;
+            margin-right: 20px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .payment-method .form-check-input {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            background-color: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .payment-method .form-check-input:checked {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .payment-method label {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-payment {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            padding: 15px 50px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+        
+        .btn-payment:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(106, 17, 203, 0.4);
+        }
+        
+        footer {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            .payment-header {
+                padding: 80px 0 40px;
+                background-attachment: scroll;
+            }
+            
+            .payment-method {
+                padding: 12px;
+            }
+            
+            .payment-method img {
+                width: 40px;
+                margin-right: 15px;
+            }
+            
+            .btn-payment {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-film me-2"></i>CineFlix
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_news.html">Flix News</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_events.html">Flix Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="flix_foods.html">Flix Foods</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="payment-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="movie-title">PEMBAYARAN</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="section-title text-center">Metode Pembayaran</h2>
+                
+                <div class="booking-summary">
+                    <h4 id="payment-movie-title"></h4>
+                    <p id="payment-cinema-name"></p>
+                    <p id="payment-showtime"></p>
+                    <p id="payment-seats"></p>
+                    <h5>Total Pembayaran: <span id="payment-total"></span></h5>
+                </div>
+
+                <div class="payment-methods">
+                    <div class="payment-method">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="gopay" value="Gopay" checked>
+                        <label class="form-check-label" for="gopay">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/1200px-Gopay_logo.svg.png" alt="Gopay">
+                            Gopay
+                        </label>
+                    </div>
+                    <div class="payment-method">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="ShopeePay" value="ShopeePay">
+                        <label class="form-check-label" for="shopeePay">
+                            <img src="assets/ShopeePay.png" alt="ShopeePay">
+                            ShopeePay
+                        </label>
+                    </div>
+                    <div class="payment-method">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="dana" value="DANA">
+                        <label class="form-check-label" for="dana">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA">
+                            DANA
+                        </label>
+                    </div>
+                    <div class="payment-method">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="PayPal" value="PayPal">
+                        <label class="form-check-label" for="PayPal">
+                            <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="PayPal">
+                            PayPal
+                        </label>
+                    </div>
+                    <div class="payment-method">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="Credit Card">
+                        <label class="form-check-label" for="creditCard">
+                            <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Credit Card">
+                            Credit Card
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button class="btn btn-payment" onclick="processPayment()">
+                        <i class="fas fa-credit-card me-2"></i>Bayar Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="flix_news.html">News</a>
+                <a href="flix_events.html">Events</a>
+                <a href="flix_foods.html">Foods</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <p class="text-center mb-0">&copy; 2025 CineFlix. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadBookingDetails() {
+            const bookingData = JSON.parse(localStorage.getItem('currentBooking'));
+            
+            if (bookingData) {
+                document.getElementById('payment-movie-title').textContent = bookingData.movie;
+                document.getElementById('payment-cinema-name').textContent = bookingData.cinema;
+                document.getElementById('payment-showtime').textContent = `${bookingData.date} | ${bookingData.time}`;
+                document.getElementById('payment-seats').textContent = `Kursi: ${bookingData.seats.join(', ')}`;
+                
+                document.getElementById('payment-total').textContent = `Rp ${bookingData.totalPrice.toLocaleString('id-ID')}`;
+            } else {
+                alert('Data booking tidak ditemukan!');
+                window.location.href = "index.html";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBookingDetails);
+
+
+        function processPayment() {
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const bookingData = JSON.parse(localStorage.getItem('currentBooking'));
+            
+            const receiptData = {
+                ...bookingData,
+                paymentMethod: paymentMethod,
+                paymentStatus: 'Berhasil'
+            };
+            
+            localStorage.setItem('receiptData', JSON.stringify(receiptData));
+            
+            window.location.href = "receipt.html";
+        }
+
+        function checkLoginStatus() {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            const loginLink = document.querySelector('a[href="login.html"]');
+            
+            if (loggedInUser) {
+                if (loginLink) {
+                    loginLink.innerHTML = '<i class="fas fa-user-circle me-1"></i>Profile';
+                    loginLink.href = 'profile.html';
+                }
+            }
+        }
+            document.addEventListener('DOMContentLoaded', checkLoginStatus);
+                
+            loadBookingDetails();
+            
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    document.querySelectorAll('.payment-method').forEach(m => {
+                        m.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+            });
+    </script>
+</body>
+</html>
