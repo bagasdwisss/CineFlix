@@ -10,6 +10,7 @@ import { useToast } from '../context/ToastContext';
 import { moviesData } from '../data/moviesData';
 import ETicketModal from '../components/common/ETicketModal';
 import TicketScannerModal from '../components/common/TicketScannerModal';
+import CinemaPassport from '../components/profile/CinemaPassport';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -195,6 +196,23 @@ export default function Profile() {
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold">
                 {user.watchlist?.length || 0}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('passport')}
+              className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                activeTab === 'passport'
+                  ? "bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white shadow-lg shadow-purple-500/25 scale-[1.01]"
+                  : "text-gray-300 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-emerald-300" />
+                <span>Cinema Passport Bioskop</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                NEW 🛂
               </span>
             </button>
 
@@ -558,6 +576,11 @@ export default function Profile() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* TAB 5: CINEMA PASSPORT */}
+          {activeTab === 'passport' && (
+            <CinemaPassport />
           )}
 
         </div>

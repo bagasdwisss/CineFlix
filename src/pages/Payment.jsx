@@ -72,16 +72,48 @@ export default function Payment() {
     }
   ];
 
+  const [deliverToSeat, setDeliverToSeat] = useState(false);
+  const [deliveryNote, setDeliveryNote] = useState('');
+  const [selectedSeatForDelivery, setSelectedSeatForDelivery] = useState(bookingData?.seats?.[0] || 'D8');
+  const [giftCardApplied, setGiftCardApplied] = useState(null);
+
   const handleApplyPromo = (e) => {
     e.preventDefault();
+    const code = promoCode.trim().toUpperCase();
+
+    // Check if it's a gift card voucher (GIFT-FLIX-...)
+    if (code.startsWith('GIFT-FLIX') || code.includes('GIFT')) {
+      try {
+        const storedCards = JSON.parse(localStorage.getItem('cineflix_purchased_giftcards') || '[]');
+        const foundCard = storedCards.find(c => c.voucherCode?.toUpperCase() === code);
+        
+        const cardValue = foundCard ? foundCard.balance || foundCard.amount : 100000;
+        const discountAmount = Math.min(subtotal, cardValue);
+        
+        setDiscount(discountAmount);
+        setAppliedVoucher({
+          code,
+          discount: discountAmount,
+          desc: `E-Gift Card CineFlix (${foundCard ? foundCard.themeName : 'Voucher Hadiah'}) Terpotong Rp ${discountAmount.toLocaleString('id-ID')}`
+        });
+        setGiftCardApplied(foundCard || { voucherCode: code, balance: cardValue });
+        showToast(`Voucher E-Gift Card berhasil digunakan! Potongan Rp ${discountAmount.toLocaleString('id-ID')}`, 'success');
+        return;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     const result = evaluateVoucher(promoCode, subtotal);
     if (result.valid) {
       setDiscount(result.discount);
       setAppliedVoucher(result);
+      setGiftCardApplied(null);
       showToast(result.message, 'success');
     } else {
       setDiscount(0);
       setAppliedVoucher(null);
+      setGiftCardApplied(null);
       showToast(result.message, 'error');
     }
   };
@@ -113,6 +145,11 @@ export default function Payment() {
         serviceFee,
         grandTotal,
         totalPrice: grandTotal,
+        deliverToSeat: deliverToSeat ? {
+          enabled: true,
+          seat: selectedSeatForDelivery,
+          note: deliveryNote || 'Antar tepat waktu saat pemutaran trailer/film'
+        } : null,
         paymentStatus: 'LUNAS & VALID',
         paymentTime: new Date().toLocaleDateString('id-ID', {
           day: 'numeric',
@@ -240,6 +277,59 @@ export default function Payment() {
             )}
           </div>
 
+          {/* Deliver to Seat Feature */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🍿</span>
+                <div>
+                  <h3 className="font-bold text-base text-white">Antar Makanan ke Kursi (Deliver to Seat)</h3>
+                  <p className="text-xs text-gray-400">Pramusaji bioskop mengantar makanan langsung ke tempat duduk Anda</p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={deliverToSeat}
+                  onChange={(e) => setDeliverToSeat(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-600 peer-checked:to-blue-600"></div>
+              </label>
+            </div>
+
+            {deliverToSeat && (
+              <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 space-y-3 animate-fade-in text-xs">
+                <div>
+                  <label className="text-gray-300 font-bold block mb-1">Pilih Kursi Penerima</label>
+                  <select
+                    value={selectedSeatForDelivery}
+                    onChange={(e) => setSelectedSeatForDelivery(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none"
+                  >
+                    {bookingData.seats.map((s) => (
+                      <option key={s} value={s} className="bg-[#140e2d] text-white">Kursi {s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-300 font-bold block mb-1">Catatan Tambahan untuk Pramusaji</label>
+                  <input
+                    type="text"
+                    value={deliveryNote}
+                    onChange={(e) => setDeliveryNote(e.target.value)}
+                    placeholder="Contoh: Antar 10 menit setelah trailer/lampu redup"
+                    className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-500 focus:outline-none"
+                  />
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Layanan antar ke kursi aktif • Gratis tanpa biaya tambahan</span>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
 
         {/* Right Col: Order Summary & Checkout CTA */}
@@ -281,6 +371,25 @@ export default function Payment() {
                   ))}
                 </div>
               </div>
+
+              {bookingData.combo && (
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs">
+                  <div className="font-bold text-amber-300 flex items-center justify-between">
+                    <span>Bundling FnB Hemat 20%</span>
+                    <span>Rp {bookingData.combo.discountedPrice.toLocaleString('id-ID')}</span>
+                  </div>
+                  <p className="text-[11px] text-gray-300 mt-0.5">
+                    🍿 {bookingData.combo.popcorn.name} + {bookingData.combo.drink.name} {bookingData.combo.snack && `+ ${bookingData.combo.snack.name}`}
+                  </p>
+                </div>
+              )}
+
+              {deliverToSeat && (
+                <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/30 text-xs text-purple-200 flex items-center justify-between">
+                  <span className="font-bold">🍿 Antar ke Kursi ({selectedSeatForDelivery})</span>
+                  <span className="text-emerald-400 font-bold">VIP Gratis</span>
+                </div>
+              )}
             </div>
 
             {/* Price breakdown */}

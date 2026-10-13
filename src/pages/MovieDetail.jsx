@@ -5,6 +5,7 @@ import { moviesData } from '../data/moviesData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import TrailerModal from '../components/TrailerModal';
+import MovieReviews from '../components/movies/MovieReviews';
 
 export default function MovieDetail() {
   const { id } = useParams();
@@ -187,6 +188,11 @@ export default function MovieDetail() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Letterboxd-Style Community Reviews */}
+            <div className="pt-6 border-t border-white/10">
+              <MovieReviews movieId={movie.id} movieTitle={movie.title} />
             </div>
 
           </div>

@@ -24,6 +24,8 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
 import TicketVerify from './pages/TicketVerify';
+import Merchandise from './pages/Merchandise';
+import GiftCards from './pages/GiftCards';
 
 // Helper component to scroll to top on every route transition
 function ScrollToTop() {
@@ -64,6 +66,9 @@ export default function App() {
 
           <Route path="/foods" element={<Foods />} />
           <Route path="/foods/payment" element={<FoodPayment />} />
+
+          <Route path="/merchandise" element={<Merchandise />} />
+          <Route path="/gift-cards" element={<GiftCards />} />
 
           <Route path="/news" element={<News />} />
           <Route path="/news/:id" element={<NewsDetail />} />

@@ -71,9 +71,11 @@ export default function Navbar() {
 
   const navLinks = [
     { to: "/home", label: "Film Bioskop" },
-    { to: "/news", label: "Flix News" },
+    { to: "/foods", label: "Flix Foods" },
+    { to: "/merchandise", label: "Flix Merch 🛍️" },
+    { to: "/gift-cards", label: "Gift Cards 🎁" },
     { to: "/events", label: "Flix Events" },
-    { to: "/foods", label: "Flix Foods" }
+    { to: "/news", label: "Flix News" }
   ];
 
   const isActive = (path) => {

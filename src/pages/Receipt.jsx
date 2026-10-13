@@ -164,6 +164,21 @@ export default function Receipt() {
                 ))}
               </div>
             </div>
+            {latestReceipt.deliverToSeat && (
+              <div className="col-span-2 p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-xs text-purple-200">
+                <span className="font-bold">🍿 Layanan Deliver to Seat Aktif: </span>
+                <span>Diantar langsung ke Kursi {latestReceipt.deliverToSeat.seat}</span>
+                {latestReceipt.deliverToSeat.note && (
+                  <span className="block text-gray-400 text-[11px] mt-0.5 italic">"{latestReceipt.deliverToSeat.note}"</span>
+                )}
+              </div>
+            )}
+            {latestReceipt.combo && (
+              <div className="col-span-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-xs text-amber-200">
+                <span className="font-bold">🍿 Paket FnB Combo Hemat 20%: </span>
+                <span>{latestReceipt.combo.popcorn.name} + {latestReceipt.combo.drink.name}</span>
+              </div>
+            )}
           </div>
 
           {/* Total */}

@@ -45,7 +45,9 @@ export default function Footer() {
               <li><Link to="/news" className="hover:text-white hover:underline transition-colors">Flix News & Artikel</Link></li>
               <li><Link to="/events" className="hover:text-white hover:underline transition-colors">Flix Events & Festival</Link></li>
               <li><Link to="/foods" className="hover:text-white hover:underline transition-colors">Flix Foods & Treats</Link></li>
-              <li><Link to="/profile" className="hover:text-white hover:underline transition-colors">Tiket Saya</Link></li>
+              <li><Link to="/merchandise" className="hover:text-white hover:underline transition-colors">Flix Merch & Tumbler</Link></li>
+              <li><Link to="/gift-cards" className="hover:text-white hover:underline transition-colors">E-Gift Card Bioskop</Link></li>
+              <li><Link to="/profile" className="hover:text-white hover:underline transition-colors">Tiket Saya & Passport</Link></li>
             </ul>
           </div>
 
