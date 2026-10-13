@@ -243,6 +243,90 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const updateTicketInHistory = (bookingId, updateFields) => {
+    if (!user) return;
+    const currentHistory = user.ticketHistory || [];
+    const updatedHistory = currentHistory.map(t => {
+      if (String(t.bookingId).toUpperCase() === String(bookingId).toUpperCase()) {
+        return { ...t, ...updateFields };
+      }
+      return t;
+    });
+    updateProfile({ ticketHistory: updatedHistory });
+  };
+
+  const resetPassword = (email, newPassword) => {
+    const users = getUsers();
+    const cleanEmail = email.trim().toLowerCase();
+    const userIndex = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+
+    if (userIndex === -1) {
+      throw new Error("Email tidak ditemukan dalam sistem CineFlix.");
+    }
+
+    const updatedUsers = [...users];
+    updatedUsers[userIndex] = {
+      ...updatedUsers[userIndex],
+      password: newPassword
+    };
+
+    saveUsers(updatedUsers);
+
+    // If currently logged in user is this person, update session
+    if (user && user.email.toLowerCase() === cleanEmail) {
+      persistUserSession(updatedUsers[userIndex]);
+    }
+
+    return true;
+  };
+
+  const changePassword = (oldPassword, newPassword) => {
+    if (!user) throw new Error("Anda belum login.");
+    if (user.password !== oldPassword) {
+      throw new Error("Kata sandi lama Anda salah.");
+    }
+    if (newPassword.length < 6) {
+      throw new Error("Kata sandi baru minimal harus 6 karakter.");
+    }
+
+    return resetPassword(user.email, newPassword);
+  };
+
+  const redeemFlixPoints = (cost, voucherCode, rewardName) => {
+    if (!user) throw new Error("Silakan login terlebih dahulu.");
+    const currentPoints = user.flixPoints || 0;
+    if (currentPoints < cost) {
+      throw new Error(`Poin Flix Anda tidak mencukupi. Butuh ${cost} poin, saat ini Anda memiliki ${currentPoints} poin.`);
+    }
+
+    const newVouchers = user.vouchers || [];
+    const rewardRecord = {
+      id: `VCH-${Date.now()}`,
+      code: voucherCode,
+      name: rewardName,
+      cost,
+      claimedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    };
+
+    updateProfile({
+      flixPoints: currentPoints - cost,
+      vouchers: [rewardRecord, ...newVouchers]
+    });
+
+    return rewardRecord;
+  };
+
+  const addMerchOrder = (order) => {
+    if (!user) return;
+    const currentOrders = user.merchOrders || [];
+    const pointsEarned = Math.floor((order.total || 0) / 1000);
+
+    updateProfile({
+      merchOrders: [order, ...currentOrders],
+      flixPoints: (user.flixPoints || 0) + pointsEarned
+    });
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -253,7 +337,12 @@ export const AuthProvider = ({ children }) => {
       logout,
       updateProfile,
       toggleWatchlist,
-      addTicketToHistory
+      addTicketToHistory,
+      updateTicketInHistory,
+      resetPassword,
+      changePassword,
+      redeemFlixPoints,
+      addMerchOrder
     }}>
       {children}
     </AuthContext.Provider>

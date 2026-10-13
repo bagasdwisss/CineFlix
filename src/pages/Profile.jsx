@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   User, Ticket, Bookmark, Settings, LogOut, Save, Trash2, Calendar, 
   MapPin, Clock, CheckCircle2, Sparkles, Award, QrCode, ExternalLink, 
-  ChevronRight, Shield, CreditCard, Film, Gift
+  ChevronRight, Shield, CreditCard, Film, Gift, ShoppingBag, Lock, Copy, KeyRound, Check
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { moviesData } from '../data/moviesData';
@@ -14,12 +15,21 @@ import CinemaPassport from '../components/profile/CinemaPassport';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, logout, updateProfile, toggleWatchlist } = useAuth();
+  const { user, logout, updateProfile, toggleWatchlist, changePassword, redeemFlixPoints } = useAuth();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('tickets'); // Default to 'tickets' as requested!
+  const [activeTab, setActiveTab] = useState('tickets'); // Default to 'tickets'
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  // Change Password State
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordMsg, setPasswordMsg] = useState({ type: '', text: '' });
+
+  // 2FA state
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(user?.twoFactorEnabled || false);
 
   // Profile Edit State
   const [formData, setFormData] = useState({
@@ -55,6 +65,74 @@ export default function Profile() {
     showToast('Profil Anda berhasil diperbarui!', 'success');
     setTimeout(() => setSaveSuccess(false), 2500);
   };
+
+  const handleChangePassword = (e) => {
+    e.preventDefault();
+    setPasswordMsg({ type: '', text: '' });
+
+    if (newPassword.length < 6) {
+      setPasswordMsg({ type: 'error', text: 'Kata sandi baru minimal 6 karakter.' });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ type: 'error', text: 'Konfirmasi kata sandi baru tidak cocok.' });
+      return;
+    }
+
+    try {
+      changePassword(oldPassword, newPassword);
+      setPasswordMsg({ type: 'success', text: 'Kata sandi akun Anda berhasil diubah!' });
+      showToast('Kata sandi berhasil diperbarui!', 'success');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPasswordMsg({ type: 'error', text: err.message || 'Gagal mengubah kata sandi.' });
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleToggle2FA = () => {
+    const nextVal = !twoFactorEnabled;
+    setTwoFactorEnabled(nextVal);
+    updateProfile({ twoFactorEnabled: nextVal });
+    showToast(nextVal ? '2FA Keamanan Akun Diaktifkan!' : '2FA Keamanan Dinonaktifkan.', nextVal ? 'success' : 'info');
+  };
+
+  // Rewards Catalog
+  const pointRewards = [
+    { id: 'rew1', name: 'Voucher Diskon Tiket Rp 25.000', cost: 500, code: 'FLIX-POINT25', desc: 'Potongan Rp 25.000 saat bayar tiket film apa saja' },
+    { id: 'rew2', name: 'Bucket Popcorn Jumbo Gratis', cost: 1000, code: 'FLIX-POPCORN-FREE', desc: 'Gratis 1 bucket Caramel Popcorn Jumbo di konter bioskop' },
+    { id: 'rew3', name: 'Tiket Bioskop Gratis 1 Kursi', cost: 2000, code: 'FLIX-TICKET-FREE', desc: 'Gratis 1 tiket nonton film 2D / Dolby Atmos' }
+  ];
+
+  const handleClaimReward = (reward) => {
+    try {
+      redeemFlixPoints(reward.cost, reward.code, reward.name);
+      showToast(`Berhasil menukar ${reward.cost} poin dengan ${reward.name}!`, 'success');
+      try {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      } catch (e) {}
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const merchOrders = useMemo(() => {
+    const fromProfile = user.merchOrders || [];
+    let fromStorage = [];
+    try {
+      fromStorage = JSON.parse(localStorage.getItem('cineflix_merch_orders') || '[]');
+    } catch (e) {}
+    const combined = [...fromProfile, ...fromStorage];
+    const seen = new Set();
+    return combined.filter(o => {
+      if (seen.has(o.orderId)) return false;
+      seen.add(o.orderId);
+      return true;
+    });
+  }, [user]);
 
   const watchlistedMovies = moviesData.filter((m) => user.watchlist?.includes(m.id));
 
@@ -106,15 +184,19 @@ export default function Profile() {
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full md:w-auto">
             
             {/* Flix Points Card */}
-            <div className="bg-black/40 border border-amber-400/30 rounded-2xl p-4 text-center min-w-[120px] shadow-lg">
+            <div 
+              onClick={() => setActiveTab('rewards')}
+              className="bg-black/40 border border-amber-400/30 hover:border-amber-400 rounded-2xl p-4 text-center min-w-[120px] shadow-lg cursor-pointer transition-all hover:scale-105"
+              title="Klik untuk Tukar Poin Hadiah"
+            >
               <div className="flex items-center justify-center gap-1.5 text-amber-300 text-xs font-bold mb-0.5">
                 <Gift className="w-4 h-4 text-amber-400" />
                 <span>Flix Points</span>
               </div>
               <span className="text-2xl font-black text-white">
-                {(user.flixPoints || 2450).toLocaleString('id-ID')}
+                {(user.flixPoints || 0).toLocaleString('id-ID')}
               </span>
-              <span className="text-[10px] text-gray-400 block mt-0.5">Poin Reward</span>
+              <span className="text-[10px] text-amber-400 font-bold block mt-0.5">Tukar Hadiah →</span>
             </div>
 
             {/* Total Tickets Count */}
@@ -213,6 +295,40 @@ export default function Profile() {
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
                 NEW 🛂
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('rewards')}
+              className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                activeTab === 'rewards'
+                  ? "bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white shadow-lg shadow-purple-500/25 scale-[1.01]"
+                  : "text-gray-300 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <Gift className="w-5 h-5 text-amber-300" />
+                <span>Tukar Poin &amp; Hadiah</span>
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold">
+                {user.vouchers?.length || 0}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('merch')}
+              className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                activeTab === 'merch'
+                  ? "bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white shadow-lg shadow-purple-500/25 scale-[1.01]"
+                  : "text-gray-300 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <ShoppingBag className="w-5 h-5 text-pink-300" />
+                <span>Pesanan Merch &amp; Tumbler</span>
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold">
+                {merchOrders.length}
               </span>
             </button>
 
@@ -549,31 +665,246 @@ export default function Profile() {
             </div>
           )}
 
-          {/* TAB 4: SETTINGS */}
-          {activeTab === 'settings' && (
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl space-y-6 shadow-xl">
-              <h3 className="font-black text-xl text-white pb-5 border-b border-white/10">
-                Pengaturan Akun & Keamanan
-              </h3>
-
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
-                  <div>
-                    <h4 className="font-bold text-sm text-white">Notifikasi Promo & Film Rilis</h4>
-                    <p className="text-xs text-gray-400">Dapatkan pemberitahuan tiket presale lewat email</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 text-[#2575fc] rounded bg-transparent" />
+          {/* TAB: REWARDS (TUKAR FLIX POINTS) */}
+          {activeTab === 'rewards' && (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl space-y-8 shadow-xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-white/10">
+                <div>
+                  <h3 className="font-black text-xl text-white">Tukar Flix Points &amp; Hadiah</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Tukarkan poin hadiah Anda dengan diskon tiket, popcorn, atau tiket nonton gratis!</p>
                 </div>
+                <div className="px-4 py-2 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-sm">
+                  Saldo Anda: {(user.flixPoints || 0).toLocaleString('id-ID')} Poin
+                </div>
+              </div>
 
+              {/* Rewards List */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider">Katalog Hadiah Eksklusif</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {pointRewards.map((rew) => {
+                    const canAfford = (user.flixPoints || 0) >= rew.cost;
+                    return (
+                      <div
+                        key={rew.id}
+                        className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition-all flex flex-col justify-between space-y-4 group"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded">
+                              {rew.cost} POIN
+                            </span>
+                            <Gift className="w-4 h-4 text-amber-400" />
+                          </div>
+                          <h5 className="font-bold text-sm text-white group-hover:text-amber-300 transition-colors">
+                            {rew.name}
+                          </h5>
+                          <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                            {rew.desc}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleClaimReward(rew)}
+                          disabled={!canAfford}
+                          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold text-xs uppercase tracking-wider transition-all"
+                        >
+                          {canAfford ? 'Tukar Sekarang' : `Kurang ${rew.cost - (user.flixPoints || 0)} Poin`}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Claimed Vouchers List */}
+              <div className="pt-6 border-t border-white/10 space-y-4">
+                <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+                  Voucher Reward Saya ({user.vouchers?.length || 0})
+                </h4>
+                {(!user.vouchers || user.vouchers.length === 0) ? (
+                  <p className="text-xs text-gray-500 italic">Belum ada voucher hadiah yang ditukarkan.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {user.vouchers.map((v) => (
+                      <div key={v.id} className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between gap-3">
+                        <div>
+                          <span className="font-bold text-white text-xs block">{v.name}</span>
+                          <span className="text-[11px] font-mono text-amber-300 font-bold block mt-0.5">{v.code}</span>
+                          <span className="text-[10px] text-gray-400 block">Ditukar: {v.claimedAt}</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(v.code);
+                            showToast(`Kode ${v.code} disalin ke clipboard!`, 'success');
+                          }}
+                          className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors"
+                          title="Salin Kode Voucher"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: MERCH ORDERS */}
+          {activeTab === 'merch' && (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl space-y-6 shadow-xl">
+              <div className="flex items-center justify-between pb-5 border-b border-white/10">
+                <div>
+                  <h3 className="font-black text-xl text-white">Pesanan Merchandise &amp; Tumbler ({merchOrders.length})</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Pantau status pengiriman merchandise resmi film Anda</p>
+                </div>
+                <Link
+                  to="/merchandise"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs"
+                >
+                  Belanja Lagi →
+                </Link>
+              </div>
+
+              {merchOrders.length === 0 ? (
+                <div className="text-center py-16 text-gray-400 space-y-3">
+                  <ShoppingBag className="w-12 h-12 mx-auto text-gray-500 opacity-50" />
+                  <p className="text-base font-bold text-white">Belum Ada Pesanan Merchandise</p>
+                  <p className="text-xs text-gray-400">Jelajahi toko resmi CineFlix untuk koleksi figur dan tumbler eksklusif.</p>
+                  <Link
+                    to="/merchandise"
+                    className="inline-block mt-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold"
+                  >
+                    Buka Flix Merch
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {merchOrders.map((ord) => (
+                    <div key={ord.orderId} className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-white/5 text-xs">
+                        <div>
+                          <span className="font-bold text-white font-mono">{ord.orderId}</span>
+                          <span className="text-gray-400 ml-2">• {ord.date}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
+                            {ord.status || 'Dalam Pengiriman'}
+                          </span>
+                          <span className="font-mono text-purple-300 text-[11px] font-bold">
+                            Resi: {ord.trackingNo || 'CNX-9821034ID'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {ord.items?.map((it, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs text-gray-300">
+                            <span>{it.name} (x{it.qty})</span>
+                            <span className="font-bold text-white">Rp {(it.price * it.qty).toLocaleString('id-ID')}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
+                        <span className="text-gray-400">Kurir: {ord.courier?.split('(')[0] || 'JNE'} • Tujuan: {ord.customerName}</span>
+                        <span className="font-black text-emerald-400 text-sm">Total: Rp {ord.total?.toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 4: SETTINGS (WITH CHANGE PASSWORD & 2FA) */}
+          {activeTab === 'settings' && (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-xl space-y-8 shadow-xl">
+              <div>
+                <h3 className="font-black text-xl text-white pb-4 border-b border-white/10">
+                  Pengaturan Akun &amp; Keamanan
+                </h3>
+              </div>
+
+              {/* Preferences */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider">Preferensi Keamanan</h4>
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-white">Autentikasi Dua Langkah (2FA)</h4>
-                    <p className="text-xs text-gray-400">Tingkatkan keamanan akun pemesanan tiket Anda</p>
+                    <h5 className="font-bold text-sm text-white">Autentikasi Dua Langkah (2FA)</h5>
+                    <p className="text-xs text-gray-400 mt-0.5">Meminta kode konfirmasi sebelum transaksi tiket bernilai tinggi</p>
                   </div>
-                  <button className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white">
-                    Aktifkan
+                  <button
+                    onClick={handleToggle2FA}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      twoFactorEnabled
+                        ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
+                        : "bg-white/10 hover:bg-white/20 text-gray-300"
+                    }`}
+                  >
+                    {twoFactorEnabled ? 'Aktif ✓' : 'Aktifkan'}
                   </button>
                 </div>
+              </div>
+
+              {/* Change Password Form */}
+              <div className="pt-6 border-t border-white/10 space-y-4">
+                <h4 className="text-sm font-bold text-gray-300 uppercase tracking-wider">Ubah Kata Sandi (Change Password)</h4>
+                
+                {passwordMsg.text && (
+                  <div className={`p-3.5 rounded-xl text-xs ${
+                    passwordMsg.type === 'success' 
+                      ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
+                      : "bg-red-500/20 border border-red-500/30 text-red-300"
+                  }`}>
+                    {passwordMsg.text}
+                  </div>
+                )}
+
+                <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-300 block mb-1">Kata Sandi Saat Ini</label>
+                    <input
+                      type="password"
+                      required
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      placeholder="Masukkan kata sandi lama"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-[#2575fc]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-gray-300 block mb-1">Kata Sandi Baru</label>
+                    <input
+                      type="password"
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Minimal 6 karakter"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-[#2575fc]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-gray-300 block mb-1">Konfirmasi Kata Sandi Baru</label>
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Ulangi kata sandi baru"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-[#2575fc]"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                  >
+                    Simpan Sandi Baru
+                  </button>
+                </form>
               </div>
             </div>
           )}

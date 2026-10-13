@@ -53,7 +53,14 @@ export default function MovieReviews({ movieId, movieTitle }) {
   });
 
   const [unmaskedSpoilers, setUnmaskedSpoilers] = useState(new Set());
-  const [likedReviews, setLikedReviews] = useState(new Set());
+  const [likedReviews, setLikedReviews] = useState(() => {
+    try {
+      const raw = localStorage.getItem(`cineflix_liked_${movieId}`);
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
 
   // New Review Form
   const [myRating, setMyRating] = useState(5.0);
@@ -70,18 +77,28 @@ export default function MovieReviews({ movieId, movieTitle }) {
   };
 
   const handleLikeReview = (reviewId) => {
-    setReviews(prev => prev.map(r => {
-      if (r.id === reviewId) {
-        const isLiked = likedReviews.has(reviewId);
-        return { ...r, likes: isLiked ? r.likes - 1 : r.likes + 1 };
-      }
-      return r;
-    }));
+    const isLiked = likedReviews.has(reviewId);
+    
+    setReviews(prev => {
+      const updated = prev.map(r => {
+        if (r.id === reviewId) {
+          return { ...r, likes: isLiked ? Math.max(0, r.likes - 1) : r.likes + 1 };
+        }
+        return r;
+      });
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
 
     setLikedReviews(prev => {
       const next = new Set(prev);
-      if (next.has(reviewId)) next.delete(reviewId);
+      if (isLiked) next.delete(reviewId);
       else next.add(reviewId);
+      try {
+        localStorage.setItem(`cineflix_liked_${movieId}`, JSON.stringify(Array.from(next)));
+      } catch (e) {}
       return next;
     });
   };

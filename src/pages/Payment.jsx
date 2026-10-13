@@ -84,10 +84,21 @@ export default function Payment() {
     // Check if it's a gift card voucher (GIFT-FLIX-...)
     if (code.startsWith('GIFT-FLIX') || code.includes('GIFT')) {
       try {
-        const storedCards = JSON.parse(localStorage.getItem('cineflix_purchased_giftcards') || '[]');
-        const foundCard = storedCards.find(c => c.voucherCode?.toUpperCase() === code);
+        const storedCards = JSON.parse(
+          localStorage.getItem('cineflix_wallet_gift_cards') || 
+          localStorage.getItem('cineflix_purchased_giftcards') || '[]'
+        );
+        const foundCard = storedCards.find(c => 
+          (c.code && c.code.trim().toUpperCase() === code) || 
+          (c.voucherCode && c.voucherCode.trim().toUpperCase() === code)
+        );
         
-        const cardValue = foundCard ? foundCard.balance || foundCard.amount : 100000;
+        if (foundCard && foundCard.status?.includes('Sudah Digunakan Penuh')) {
+          showToast('Voucher Gift Card ini sudah pernah digunakan habis.', 'error');
+          return;
+        }
+
+        const cardValue = foundCard ? (foundCard.amount || foundCard.balance || 100000) : 100000;
         const discountAmount = Math.min(subtotal, cardValue);
         
         setDiscount(discountAmount);
@@ -96,7 +107,7 @@ export default function Payment() {
           discount: discountAmount,
           desc: `E-Gift Card CineFlix (${foundCard ? foundCard.themeName : 'Voucher Hadiah'}) Terpotong Rp ${discountAmount.toLocaleString('id-ID')}`
         });
-        setGiftCardApplied(foundCard || { voucherCode: code, balance: cardValue });
+        setGiftCardApplied(foundCard || { code, voucherCode: code, amount: cardValue });
         showToast(`Voucher E-Gift Card berhasil digunakan! Potongan Rp ${discountAmount.toLocaleString('id-ID')}`, 'success');
         return;
       } catch (err) {
@@ -167,6 +178,33 @@ export default function Payment() {
       // 4. Save to user profile ticket history if logged in
       if (user) {
         addTicketToHistory(receipt);
+      }
+
+      // 5. If gift card was used, deduct its balance in localStorage wallet
+      if (giftCardApplied && discount > 0) {
+        try {
+          const rawWallet = localStorage.getItem('cineflix_wallet_gift_cards');
+          if (rawWallet) {
+            const walletList = JSON.parse(rawWallet);
+            const updatedWallet = walletList.map(card => {
+              const match = (card.code && card.code.toUpperCase() === giftCardApplied.code?.toUpperCase()) ||
+                            (card.voucherCode && card.voucherCode.toUpperCase() === giftCardApplied.code?.toUpperCase());
+              if (match) {
+                const rem = Math.max(0, (card.amount || card.balance || 0) - discount);
+                return {
+                  ...card,
+                  amount: rem,
+                  balance: rem,
+                  status: rem <= 0 ? "Sudah Digunakan Penuh" : `Sisa Saldo: Rp ${rem.toLocaleString('id-ID')}`
+                };
+              }
+              return card;
+            });
+            localStorage.setItem('cineflix_wallet_gift_cards', JSON.stringify(updatedWallet));
+          }
+        } catch (e) {
+          console.error('Error updating gift card wallet:', e);
+        }
       }
 
       setIsProcessing(false);

@@ -127,8 +127,10 @@ export default function Merchandise() {
     }
 
     const orderId = 'FLIX-MRCH-' + Math.floor(100000 + Math.random() * 900000);
+    const trackingNo = 'CNX' + Math.floor(10000000 + Math.random() * 90000000) + 'ID';
     const orderData = {
       orderId,
+      trackingNo,
       items: cart,
       subtotal: cartTotal,
       courierFee,
@@ -138,12 +140,26 @@ export default function Merchandise() {
       shippingAddress,
       courier,
       paymentMethod,
+      status: "Diproses & Dikemas",
       date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
     };
 
+    // 1. Save to global merch orders
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('cineflix_merch_orders') || '[]');
+      localStorage.setItem('cineflix_merch_orders', JSON.stringify([orderData, ...existingOrders]));
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 2. Add to user profile & reward points
+    if (addMerchOrder) {
+      addMerchOrder(orderData);
+    }
+
     setOrderSuccess(orderData);
     setCart([]);
-    showToast('Pesanan berhasil dibuat! Nomor resi akan dikirim via WhatsApp.', 'success');
+    showToast(`Pesanan berhasil dibuat! No. Resi: ${trackingNo}`, 'success');
   };
 
   return (

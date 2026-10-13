@@ -26,32 +26,62 @@ export default function Chatbot() {
 
   const quickQuestions = [
     "Cara pesan tiket?",
-    "Lokasi bioskop di mana saja?",
-    "Berapa harga tiket?",
-    "Metode pembayaran apa saja?",
-    "Ada menu makanan apa?"
+    "Pilihan kategori kursi khusus?",
+    "Bisa antar makanan ke kursi?",
+    "Apa keuntungan Tumbler Club?",
+    "Cara patungan tiket (Split Bill)?",
+    "Apa itu Cinema Passport?",
+    "Toko Merchandise resmi?"
   ];
 
   const knowledgeBase = [
     {
       keywords: [/cara pesan|booking|pesan tiket|reservasi|beli tiket/i],
-      answer: "Langkah mudah pesan tiket di CineFlix:\n1. Pilih film di halaman Home atau Movie Details.\n2. Klik tombol 'Pesan Tiket'.\n3. Pilih bioskop, tanggal tayang, dan jam tayang.\n4. Tentukan kursi favorit Anda di studio.\n5. Pilih metode pembayaran (GoPay, DANA, ShopeePay, Kartu Kredit) dan dapatkan e-tiket ber-barcode secara instan!"
+      answer: "Langkah mudah pesan tiket di CineFlix:\n1. Pilih film di halaman Home atau Movie Details.\n2. Klik tombol 'Pesan Tiket'.\n3. Pilih bioskop, tanggal tayang, dan jam tayang.\n4. Tentukan kursi favorit Anda (Regular, Recliner VIP, Premiere Bed, atau Sweetbox Duo).\n5. Manfaatkan fitur 3D POV Vision untuk melihat sudut layar, atau Split Bill untuk patungan!\n6. Pilih metode pembayaran instan dan dapatkan E-Tiket ber-barcode siap scan!"
+    },
+    {
+      keywords: [/kursi|kategori kursi|sweetbox|recliner|premiere bed|bed|vip/i],
+      answer: "CineFlix menyediakan 4 pilihan kategori kursi eksklusif:\n🛏️ Baris A - Premiere Bed (Kasur mewah rebahan 180° + bantal selimut satin)\n🛋️ Baris B - Recliner VIP (Kursi kulit elektrik dengan sandaran kaki & USB charger)\n💖 Baris G-H - Sweetbox Duo (Sofa berdua tanpa sekat lengan untuk privasi lebih)\n💺 Baris C-F - Regular Studio (Kursi ergonomis dengan akustik Dolby Atmos)."
+    },
+    {
+      keywords: [/antar ke kursi|deliver to seat|antar makanan/i],
+      answer: "Ya! Fitur 'Deliver to Seat' memungkinkan Anda memesan popcorn & minuman lalu diantar langsung oleh pramusaji bioskop ke nomor kursi Anda saat pemutaran film/trailer berlangsung, gratis tanpa biaya tambahan!"
+    },
+    {
+      keywords: [/split bill|patungan|pesan bareng|bagi tagihan/i],
+      answer: "Fitur 'Pesan Bareng (Split Bill)' otomatis membagi total tagihan tiket ke 2 hingga 8 teman Anda. Anda akan mendapatkan tautan WhatsApp instan dan kode patungan dengan batas waktu pembayaran 10 menit!"
+    },
+    {
+      keywords: [/tumbler|tumbler club|collector cup|isi ulang|refill/i],
+      answer: "Popcorn Tumbler Club memberikan hak istimewa eksklusif:\n🥤 Gratis isi ulang soda/minuman sepuasnya setiap kunjungan!\n🍿 Diskon 20% menu FnB bioskop seumur hidup\n🚀 Jalur antrean VIP Prioritas di konter FnB seluruh bioskop CineFlix!"
+    },
+    {
+      keywords: [/passport|paspor|stempel|koleksi/i],
+      answer: "Cinema Passport adalah paspor digital bioskop resmi CineFlix! Setiap tiket yang Anda tonton otomatis dicap sebagai stempel resmi. Anda juga bisa klaim stempel kunjungan harian dan membuka lencana pencapaian penonton di halaman Profil!"
+    },
+    {
+      keywords: [/merchandise|merch|action figure|jaket|toko/i],
+      answer: "Kunjungi tab 'Flix Merch' untuk membeli figur kolektor skala 1:6 resmi, replika properti Marvel (Iron Man Nano Gauntlet 1:1 LED), jaket varsity cinema anti-dingin, dan poster kanvas bertanda tangan resmi!"
+    },
+    {
+      keywords: [/gift card|voucher|hadiah/i],
+      answer: "Di tab 'Gift Cards', Anda bisa membeli kartu hadiah digital dengan tema elegan (Gold Premiere, Neon Cyberpunk, Romance) mulai Rp 50.000 s/d Rp 1.000.000 dengan kode voucher unik yang langsung dapat ditukarkan saat bayar tiket!"
     },
     {
       keywords: [/lokasi|alamat|bioskop|cabang|dimana/i],
-      answer: "CineFlix saat ini hadir di 3 lokasi premier:\n1. CINEFLIX RASUNA SAID (Epicentrum Walk Lt. 3, Jakarta Selatan)\n2. CINEFLIX DAGO ATAS (Dago Highlands Plaza Lt. 2, Bandung)\n3. CINEFLIX UBUD RAYA (Ubud Sunset Pavilion, Bali)"
+      answer: "CineFlix hadir di 3 lokasi premier:\n1. CINEFLIX RASUNA SAID (Epicentrum Walk Lt. 3, Jakarta Selatan)\n2. CINEFLIX DAGO ATAS (Dago Highlands Plaza Lt. 2, Bandung)\n3. CINEFLIX UBUD RAYA (Ubud Sunset Pavilion, Bali)"
     },
     {
       keywords: [/harga|tarif|biaya|berapa/i],
-      answer: "Daftar tarif tiket bioskop CineFlix:\n- CINEFLIX RASUNA SAID: Weekday Rp 75.000 | Weekend Rp 85.000\n- CINEFLIX DAGO ATAS: Weekday Rp 80.000 | Weekend Rp 90.000\n- CINEFLIX UBUD RAYA: Weekday Rp 85.000 | Weekend Rp 95.000"
+      answer: "Daftar tarif tiket reguler CineFlix:\n- CINEFLIX RASUNA SAID: Weekday Rp 75.000 | Weekend Rp 85.000\n- CINEFLIX DAGO ATAS: Weekday Rp 80.000 | Weekend Rp 90.000\n- CINEFLIX UBUD RAYA: Weekday Rp 85.000 | Weekend Rp 95.000"
     },
     {
-      keywords: [/bayar|metode pembayaran|pembayaran|gopay|dana|shopeepay/i],
-      answer: "Kami menerima berbagai opsi pembayaran instan & aman:\n- E-Wallet: GoPay, ShopeePay, DANA\n- Global & Card: PayPal, Kartu Kredit / Debit Visa / Mastercard\n- Virtual Account Bank"
+      keywords: [/bayar|metode pembayaran|pembayaran|gopay|dana|shopeepay|qris/i],
+      answer: "Kami menerima berbagai opsi pembayaran instan & aman:\n- QRIS Semua Bank & E-Wallet\n- GoPay, ShopeePay, DANA\n- Kartu Kredit / Debit Visa & Mastercard\n- Virtual Account BCA & Mandiri"
     },
     {
       keywords: [/makan|snack|popcorn|minum|food|beverage/i],
-      answer: "Menu favorit Flix Foods kami meliputi:\n- Caramel Popcorn Jumbo (Rp 55.000)\n- Combo Duo Movie Snack (Rp 95.000)\n- Nachos Cheese Supreme (Rp 48.000)\n- Crispy Chicken Bites & Fries (Rp 52.000)\n- Artisan Roasted Coffee (Rp 38.000)\nBisa dipesan langsung di menu Flix Foods!"
+      answer: "Menu favorit Flix Foods kami meliputi:\n- Caramel Popcorn Jumbo (Rp 55.000)\n- Combo Duo Movie Snack (Rp 95.000)\n- Nachos Cheese Supreme (Rp 48.000)\n- Crispy Chicken Bites & Fries (Rp 52.000)\n- Artisan Roasted Coffee (Rp 38.000)"
     },
     {
       keywords: [/event|festival|maraton|nolan|marvel/i],

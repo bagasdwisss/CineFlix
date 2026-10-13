@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, CheckCircle2, Ticket, Calendar, Clock, MapPin, User, Film, AlertTriangle, ArrowLeft, Printer, Sparkles, QrCode, ShoppingBag } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Ticket, Calendar, Clock, MapPin, User, Film, AlertTriangle, ArrowLeft, Printer, Sparkles, QrCode, ShoppingBag, Stamp, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { getTicketByBookingId, getAllTickets } from '../utils/ticketRegistry';
+import { getTicketByBookingId, getAllTickets, saveTicket } from '../utils/ticketRegistry';
 import { useBooking } from '../context/BookingContext';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export default function TicketVerify() {
   const { bookingId } = useParams();
   const navigate = useNavigate();
   const { latestReceipt } = useBooking();
+  const { user, updateTicketInHistory } = useAuth();
+  const { showToast } = useToast();
 
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +65,40 @@ export default function TicketVerify() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleCheckIn = () => {
+    if (!ticket) return;
+    if (ticket.checkedIn) {
+      showToast('Tiket ini sudah pernah di-check in sebelumnya!', 'error');
+      return;
+    }
+
+    const checkInTime = new Date().toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) + ' WIB';
+
+    const updated = {
+      ...ticket,
+      checkedIn: true,
+      checkedInAt: checkInTime,
+      status: isFood ? 'PESANAN TELAH DIAMBIL' : 'SUDAH DIGUNAKAN (CHECKED IN)'
+    };
+
+    saveTicket(updated);
+    if (updateTicketInHistory) {
+      updateTicketInHistory(ticket.bookingId, updated);
+    }
+    setTicket(updated);
+    showToast(isFood ? 'Pesanan makanan berhasil dikonfirmasi diambil!' : 'Check-in berhasil! Penonton diizinkan masuk studio.', 'success');
+    
+    try {
+      confetti({ particleCount: 90, spread: 75, origin: { y: 0.5 } });
+    } catch (e) {}
   };
 
   const isEvent = ticket && (ticket.orderType === 'event' || String(ticket.bookingId).startsWith('EVT'));
@@ -252,6 +290,41 @@ export default function TicketVerify() {
               </span>
             </div>
 
+          </div>
+
+          {/* Gate Check-In Action Section */}
+          <div className="no-print space-y-3">
+            {ticket.checkedIn ? (
+              <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs flex items-center justify-between shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm text-white block">TIKET TELAH DI-CHECK IN / DIGUNAKAN</span>
+                    <p className="text-[11px] text-gray-300">Waktu Masuk Gerbang: {ticket.checkedInAt || 'Telah Diverifikasi'}</p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold text-[11px] border border-amber-500/30">
+                  GATE PASSED ✓
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCheckIn}
+                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-sm shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
+              >
+                <Check className="w-5 h-5 stroke-[3]" />
+                <span>
+                  {isFood 
+                    ? "Konfirmasi Pesanan Makanan Diambil di Konter" 
+                    : isEvent 
+                    ? "Konfirmasi Check-In Akses Event Pass" 
+                    : "Konfirmasi Masuk Studio Bioskop (Check-In Gerbang)"}
+                </span>
+              </button>
+            )}
           </div>
 
           {/* Action buttons */}
