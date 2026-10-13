@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, CheckCircle2, Ticket, Calendar, Clock, MapPin, User, Film, AlertTriangle, ArrowLeft, Printer, Sparkles, QrCode } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Ticket, Calendar, Clock, MapPin, User, Film, AlertTriangle, ArrowLeft, Printer, Sparkles, QrCode, ShoppingBag } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { getTicketByBookingId, getAllTickets } from '../utils/ticketRegistry';
 import { useBooking } from '../context/BookingContext';
@@ -43,7 +43,7 @@ export default function TicketVerify() {
     if (found) {
       try {
         confetti({
-          particleCount: 60,
+          particleCount: 70,
           spread: 60,
           origin: { y: 0.5 }
         });
@@ -63,6 +63,9 @@ export default function TicketVerify() {
     window.print();
   };
 
+  const isEvent = ticket && (ticket.orderType === 'event' || String(ticket.bookingId).startsWith('EVT'));
+  const isFood = ticket && (ticket.orderType === 'food' || String(ticket.bookingId).startsWith('FOOD'));
+
   return (
     <div className="min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-8 animate-fadeIn">
       
@@ -76,7 +79,7 @@ export default function TicketVerify() {
         </Link>
         <div className="text-right">
           <span className="text-[11px] font-mono text-purple-400 uppercase tracking-wider block">
-            CINEFLIX GATE SECURITY SYSTEM
+            CINEFLIX SECURITY & CONCESSION GATE
           </span>
         </div>
       </div>
@@ -84,14 +87,14 @@ export default function TicketVerify() {
       {loading ? (
         <div className="text-center py-20 text-gray-400">
           <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm">Memverifikasi keaslian tiket di server bioskop...</p>
+          <p className="text-sm">Memverifikasi keaslian kode di server CineFlix...</p>
         </div>
       ) : ticket ? (
         /* Verified Ticket Display */
         <div className="space-y-6">
           
           {/* Security Status Card */}
-          <div className="bg-gradient-to-r from-emerald-950/60 via-emerald-900/40 to-teal-950/60 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+          <div className="bg-gradient-to-r from-emerald-950/70 via-emerald-900/40 to-teal-950/70 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
@@ -102,16 +105,30 @@ export default function TicketVerify() {
               <div className="flex-1 min-w-0">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 mb-2">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>TIKET RESMI TERVERIFIKASI & VALID</span>
+                  <span>
+                    {isEvent 
+                      ? 'EVENT PASS RESMI TERVERIFIKASI & VALID'
+                      : isFood
+                      ? 'BUKTI PESANAN FnB RESMI TERVERIFIKASI'
+                      : 'TIKET FILM RESMI TERVERIFIKASI & VALID'}
+                  </span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  AKSES STUDIO DIIZINKAN
+                  {isEvent
+                    ? 'AKSES FESTIVAL DIIZINKAN'
+                    : isFood
+                    ? 'PESANAN SIAP DIAMBIL DI KONTER'
+                    : 'AKSES STUDIO DIIZINKAN'}
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                  E-Tiket ini sah diterbitkan oleh CineFlix Cinema dan siap digunakan untuk menonton.
+                  {isEvent
+                    ? 'E-Pass ini sah diterbitkan oleh CineFlix Events dan dapat digunakan untuk memasuki area acara.'
+                    : isFood
+                    ? 'Pesanan makanan/minuman telah dibayar lunas dan siap diambil di konter concession bioskop.'
+                    : 'E-Tiket ini sah diterbitkan oleh CineFlix Cinema dan siap digunakan untuk menonton.'}
                 </p>
                 <div className="mt-3 text-[11px] font-mono text-emerald-400/90">
-                  Waktu Verifikasi: {verificationTime}
+                  Waktu Verifikasi Sistem: {verificationTime}
                 </div>
               </div>
             </div>
@@ -121,10 +138,12 @@ export default function TicketVerify() {
           <div className="bg-[#141424] border border-white/15 rounded-3xl overflow-hidden shadow-2xl relative">
             
             {/* Header banner */}
-            <div className="bg-gradient-to-r from-[#6a11cb] to-[#2575fc] p-5 text-white flex items-center justify-between">
+            <div className="bg-gradient-to-r from-[#6a11cb] via-[#3b82f6] to-[#2575fc] p-5 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Ticket className="w-5 h-5 text-amber-300" />
-                <span className="font-bold text-sm tracking-wide">DETAIL TIKET BIOSKOP</span>
+                {isFood ? <ShoppingBag className="w-5 h-5 text-amber-300" /> : <Ticket className="w-5 h-5 text-amber-300" />}
+                <span className="font-bold text-sm tracking-wide">
+                  {isEvent ? 'DETAIL TIKET EVENT PASS' : isFood ? 'DETAIL VOUCHER MAKANAN' : 'DETAIL TIKET BIOSKOP'}
+                </span>
               </div>
               <span className="font-mono text-xs font-bold bg-white/20 px-3 py-1 rounded-full">
                 {ticket.bookingId}
@@ -133,13 +152,13 @@ export default function TicketVerify() {
 
             <div className="p-6 sm:p-8 space-y-6">
               
-              {/* Movie info */}
+              {/* Product/Movie info */}
               <div className="flex flex-col sm:flex-row gap-5 pb-6 border-b border-white/10 items-center sm:items-start text-center sm:text-left">
                 {ticket.poster && (
                   <img
                     src={ticket.poster}
                     alt={ticket.movie}
-                    className="w-24 h-36 rounded-2xl object-cover border border-white/20 shadow-xl shrink-0"
+                    className="w-24 h-32 rounded-2xl object-cover border border-white/20 shadow-xl shrink-0"
                     onError={(e) => {
                       e.target.src = 'assets/avatar.jpg';
                     }}
@@ -147,7 +166,7 @@ export default function TicketVerify() {
                 )}
                 <div className="flex-1 min-w-0">
                   <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider block">
-                    Informasi Penayangan
+                    {isEvent ? 'Event / Festival' : isFood ? 'Concession Order' : 'Informasi Penayangan'}
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-black text-white mt-1">
                     {ticket.movie}
@@ -158,10 +177,10 @@ export default function TicketVerify() {
                   </p>
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3 text-xs">
                     <span className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-semibold">
-                      {ticket.studio || 'Studio 1 (Dolby Atmos)'}
+                      {ticket.studio || 'Studio Bioskop'}
                     </span>
                     <span className="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
-                      {ticket.gate || 'Pintu Masuk Gate 1'}
+                      {ticket.gate || 'Jalur Masuk Resmi'}
                     </span>
                   </div>
                 </div>
@@ -170,35 +189,37 @@ export default function TicketVerify() {
               {/* Data Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs sm:text-sm pb-6 border-b border-white/10">
                 <div className="space-y-1">
-                  <span className="text-gray-400 text-xs block">Tanggal Tayang</span>
+                  <span className="text-gray-400 text-xs block">Tanggal Pelaksanaan / Order</span>
                   <span className="font-bold text-white flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-purple-400" /> {ticket.date}
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-gray-400 text-xs block">Waktu Tayang</span>
+                  <span className="text-gray-400 text-xs block">Waktu Penayangan / Ambil</span>
                   <span className="font-bold text-white flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-blue-400" /> {ticket.time} WIB
+                    <Clock className="w-4 h-4 text-blue-400" /> {ticket.time}
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-gray-400 text-xs block">Nama Pemegang Tiket</span>
+                  <span className="text-gray-400 text-xs block">Nama Pemesan / Pemegang</span>
                   <span className="font-bold text-white flex items-center gap-1.5">
                     <User className="w-4 h-4 text-emerald-400" /> {ticket.buyerName || 'John Doe'}
                   </span>
                 </div>
 
                 <div className="col-span-2 sm:col-span-3 space-y-1.5">
-                  <span className="text-gray-400 text-xs block">Nomor Kursi Bioskop</span>
+                  <span className="text-gray-400 text-xs block">
+                    {isEvent ? 'Kategori Tiket Pass:' : isFood ? 'Daftar Menu Konsumsi:' : 'Nomor Kursi Bioskop:'}
+                  </span>
                   <div className="flex flex-wrap gap-2">
-                    {(Array.isArray(ticket.seats) ? ticket.seats : [ticket.seats || 'A1']).map((seat) => (
+                    {(Array.isArray(ticket.seats) ? ticket.seats : [ticket.seats || 'A1']).map((item) => (
                       <span
-                        key={seat}
-                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/40 text-purple-200 font-black text-sm"
+                        key={item}
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/40 text-purple-200 font-black text-xs sm:text-sm"
                       >
-                        {seat}
+                        {item}
                       </span>
                     ))}
                   </div>
@@ -209,10 +230,10 @@ export default function TicketVerify() {
               <div className="flex items-center justify-between pt-2">
                 <div>
                   <span className="text-xs text-gray-400 block">Metode Pembayaran</span>
-                  <span className="font-semibold text-white text-sm">{ticket.paymentMethod || 'GoPay'}</span>
+                  <span className="font-semibold text-white text-sm">{ticket.paymentMethod || 'GoPay / E-Wallet'}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-gray-400 block">Total Biaya Pembayaran</span>
+                  <span className="text-xs text-gray-400 block">Total Transaksi</span>
                   <span className="text-2xl font-black text-emerald-400">
                     Rp {(ticket.grandTotal || ticket.totalPrice || 0).toLocaleString('id-ID')}
                   </span>
@@ -224,7 +245,7 @@ export default function TicketVerify() {
             {/* Bottom Security Hologram Strip */}
             <div className="p-4 bg-black/40 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
               <span className="font-mono text-[11px]">
-                SEC-ID: {ticket.bookingId}-HASH-AUTHENTICATED
+                SEC-ID: {ticket.bookingId}-CINEFLIX-AUTHENTICATED
               </span>
               <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Enkripsi Verifikasi 256-bit
@@ -237,7 +258,7 @@ export default function TicketVerify() {
           <div className="flex flex-col sm:flex-row gap-3 no-print">
             <button
               onClick={handlePrint}
-              className="flex-1 py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm flex items-center justify-center gap-2 border border-white/10 transition-colors"
+              className="flex-1 py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm flex items-center justify-center gap-2 border border-white/10 transition-colors cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               <span>Cetak Bukti Verifikasi</span>
@@ -259,23 +280,22 @@ export default function TicketVerify() {
           <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-lg">
             <AlertTriangle className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-black text-white">Tiket Tidak Ditemukan</h2>
+          <h2 className="text-2xl font-black text-white">Tiket / Pesanan Tidak Ditemukan</h2>
           <p className="text-sm text-gray-400 max-w-md mx-auto">
             Kode booking <code className="font-mono text-amber-300 font-bold">{bookingId || '(kosong)'}</code> tidak ditemukan dalam sistem database tiket CineFlix.
           </p>
 
-          {/* Search box to re-check */}
           <form onSubmit={handleSearch} className="max-w-md mx-auto flex gap-2">
             <input
               type="text"
               value={searchCode}
               onChange={(e) => setSearchCode(e.target.value)}
-              placeholder="Masukkan kode booking tiket..."
+              placeholder="Masukkan kode booking tiket/makanan..."
               className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono uppercase focus:outline-none focus:border-purple-500"
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-colors"
+              className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-colors cursor-pointer"
             >
               Cari
             </button>
