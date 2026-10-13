@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary-color: #6a11cb;
+  --secondary-color: #2575fc;
+  --dark-color: #1a1a2e;
+  --light-color: #f8f9fa;
+  --accent-color: #ff4d4d;
+  --card-bg: rgba(255, 255, 255, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #f8f9fa;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141424;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a11cb, #2575fc);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2575fc;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(106, 17, 203, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(37, 117, 252, 0.6);
+  }
+}
+
+.glow-effect {
+  animation: pulseGlow 3s infinite;
+}
+
+/* Print Styles for Receipts */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  nav, footer, button, .no-print {
+    display: none !important;
+  }
+
+  .print-area {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    background: white !important;
+    color: black !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+}
