@@ -24,6 +24,16 @@ Hasil build yang optimal dan siap deploy akan dihasilkan di folder `dist/`.
 Karena proyek berada di folder `c:\xampp\htdocs\CineFlix`, Anda dapat membuka build produksi langsung di browser melalui Apache XAMPP:
 👉 **[http://localhost/CineFlix/dist/](http://localhost/CineFlix/dist/)**
 
+### 4. Deploy ke Vercel
+Proyek ini sudah dikonfigurasi penuh dengan [`vercel.json`](file:///c:/xampp/htdocs/CineFlix/vercel.json) untuk Vercel:
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fbagasdwisss%2FCineFlix)
+
+Atau deploy manual via Vercel Dashboard:
+1. Buka [Vercel New Project](https://vercel.com/new).
+2. Pilih repository GitHub: `bagasdwisss/CineFlix`.
+3. Framework Preset: **Vite** (otomatis terdeteksi).
+4. Klik **Deploy**!
+
 ---
 
 ## 🛠️ Perbaikan & Peningkatan yang Dilakukan
