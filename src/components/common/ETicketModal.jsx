@@ -3,7 +3,7 @@ import { X, Printer, ShieldCheck, Ticket, QrCode, ExternalLink, Sparkles, CheckC
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { useNavigate } from 'react-router-dom';
-import { getVerificationUrl } from '../../utils/ticketRegistry';
+import { getVerificationUrl, saveTicket } from '../../utils/ticketRegistry';
 
 export default function ETicketModal({ ticket, onClose, onTestScan }) {
   const navigate = useNavigate();
@@ -14,8 +14,11 @@ export default function ETicketModal({ ticket, onClose, onTestScan }) {
   useEffect(() => {
     if (!ticket) return;
 
+    // Ensure ticket is in global verified registry
+    saveTicket(ticket);
+
     // Generate 2D QR Code with black modules on crisp white background for fast smartphone reading
-    const verifyUrl = getVerificationUrl(ticket.bookingId);
+    const verifyUrl = getVerificationUrl(ticket);
     QRCode.toDataURL(verifyUrl, {
       width: 256,
       margin: 2,
@@ -54,7 +57,7 @@ export default function ETicketModal({ ticket, onClose, onTestScan }) {
 
   const seatsArray = Array.isArray(ticket.seats) ? ticket.seats : [ticket.seats || 'A1'];
   const grandTotal = ticket.grandTotal || ticket.totalPrice || 0;
-  const verifyUrl = getVerificationUrl(ticket.bookingId);
+  const verifyUrl = getVerificationUrl(ticket);
 
   const handlePrint = () => {
     window.print();

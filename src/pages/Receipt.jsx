@@ -34,7 +34,7 @@ export default function Receipt() {
     saveTicket(latestReceipt);
 
     // 2. Generate Real 2D QR Code with dark black modules on crisp white background for phone scanning!
-    const verifyUrl = getVerificationUrl(latestReceipt.bookingId);
+    const verifyUrl = getVerificationUrl(latestReceipt);
     QRCode.toDataURL(verifyUrl, {
       width: 256,
       margin: 2,
@@ -315,11 +315,19 @@ export default function Receipt() {
         </button>
 
         <button
+          onClick={() => setIsScannerOpen(true)}
+          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 font-bold text-sm transition-all cursor-pointer"
+        >
+          <QrCode className="w-4 h-4" />
+          <span>Buka Scanner Bioskop</span>
+        </button>
+
+        <button
           onClick={handlePrint}
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/10 transition-colors cursor-pointer"
         >
           <Printer className="w-4 h-4" />
-          <span>Cetak / Simpan Tiket</span>
+          <span>Cetak Tiket</span>
         </button>
       </div>
 

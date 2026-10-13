@@ -32,7 +32,7 @@ export default function FoodPayment() {
     if (!completedOrder) return;
 
     // 1. Generate QR Code
-    const verifyUrl = getVerificationUrl(completedOrder.orderId);
+    const verifyUrl = getVerificationUrl(completedOrder);
     QRCode.toDataURL(verifyUrl, {
       width: 256,
       margin: 2,

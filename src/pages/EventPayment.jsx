@@ -28,7 +28,7 @@ export default function EventPayment() {
     if (!completedEventTicket) return;
 
     // Generate QR Code
-    const verifyUrl = getVerificationUrl(completedEventTicket.bookingId);
+    const verifyUrl = getVerificationUrl(completedEventTicket);
     QRCode.toDataURL(verifyUrl, {
       width: 256,
       margin: 2,

@@ -1,7 +1,7 @@
 /**
  * Global Ticket Registry for CineFlix
- * Provides persistent storage and retrieval for all issued cinema tickets,
- * event passes, and food pickup vouchers, enabling real verification when scanning barcodes / QR codes.
+ * Provides persistent storage, cross-device portable payload encoding,
+ * and smart lookup for all issued cinema tickets, event passes, and food pickup vouchers.
  */
 
 const STORAGE_KEY = 'cineflix_verified_tickets';
@@ -96,37 +96,215 @@ const INITIAL_TICKETS = [
   }
 ];
 
-export function getAllTickets() {
+/**
+ * Smart extractor to pull out the booking ID from any raw text, full URL, or route fragment.
+ * Supports: FLIX-xxxxxxxx, CNF-xxxxxxxx, EVT-xxxxxxxx, FOOD-xxxxxxxx
+ */
+export function extractBookingId(input) {
+  if (!input) return '';
+  const str = String(input).trim();
+
+  // 1. Regex search for known CineFlix prefixes
+  const match = str.match(/(FLIX|CNF|EVT|FOOD)-[A-Z0-9]+/i);
+  if (match) {
+    return match[0].toUpperCase();
+  }
+
+  // 2. Fallback: Parse URL or path segment
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_TICKETS));
-      return INITIAL_TICKETS;
+    const withoutQuery = str.split('?')[0].split('#').pop() || '';
+    const lastSegment = withoutQuery.split('/').filter(Boolean).pop();
+    if (lastSegment && /^[A-Z0-9_-]+$/i.test(lastSegment)) {
+      return lastSegment.toUpperCase();
     }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : INITIAL_TICKETS;
   } catch (e) {
-    console.error('Failed to load tickets from registry:', e);
-    return INITIAL_TICKETS;
+    // ignore
+  }
+
+  return str.toUpperCase();
+}
+
+/**
+ * Encodes ticket details into a compact base64 string to embed directly in QR code URLs.
+ * This solves the cross-device problem when scanning from a smartphone camera.
+ */
+export function encodeTicketPayload(ticket) {
+  if (!ticket) return '';
+  const bookingId = ticket.bookingId || ticket.orderId;
+  if (!bookingId) return '';
+
+  try {
+    const compact = {
+      id: bookingId,
+      m: ticket.movie || '',
+      c: ticket.cinema || '',
+      s: ticket.studio || '',
+      d: ticket.date || '',
+      t: ticket.time || '',
+      st: Array.isArray(ticket.seats) ? ticket.seats : [ticket.seats || 'A1'],
+      p: ticket.grandTotal || ticket.totalPrice || 0,
+      pm: ticket.paymentMethod || 'GoPay',
+      n: ticket.buyerName || 'Pelanggan CineFlix',
+      type: ticket.orderType || (String(bookingId).startsWith('EVT') ? 'event' : String(bookingId).startsWith('FOOD') ? 'food' : 'movie'),
+      g: ticket.gate || '',
+      pos: ticket.poster || '',
+      chk: ticket.checkedIn ? 1 : 0
+    };
+
+    const jsonStr = JSON.stringify(compact);
+    // Cross-platform safe UTF-8 base64 encoding
+    return btoa(unescape(encodeURIComponent(jsonStr)));
+  } catch (e) {
+    console.error('Failed to encode ticket payload:', e);
+    return '';
   }
 }
 
-export function saveTicket(ticket) {
-  if (!ticket || !ticket.bookingId) return;
+/**
+ * Decodes a ticket payload from a base64 string or full URL containing ?d=...
+ */
+export function decodeTicketPayload(payloadOrUrl) {
+  if (!payloadOrUrl) return null;
   try {
-    const tickets = getAllTickets();
-    const existingIndex = tickets.findIndex(
-      t => String(t.bookingId).trim().toUpperCase() === String(ticket.bookingId).trim().toUpperCase()
-    );
+    let b64 = '';
+    const str = String(payloadOrUrl).trim();
 
-    const bId = String(ticket.bookingId).trim().toUpperCase();
-    const inferredType = ticket.orderType || (
+    // Check if input is a URL containing ?d= or &d=
+    const match = str.match(/[?&]d=([^&#]+)/);
+    if (match) {
+      b64 = decodeURIComponent(match[1]);
+    } else if (!str.includes('/') && !str.includes(' ')) {
+      b64 = str;
+    }
+
+    if (!b64) return null;
+
+    // Decode base64 UTF-8
+    const jsonStr = decodeURIComponent(escape(atob(b64)));
+    const compact = JSON.parse(jsonStr);
+
+    if (!compact || (!compact.id && !compact.bookingId)) return null;
+
+    const bId = compact.id || compact.bookingId;
+    const inferredType = compact.type || compact.orderType || (
       bId.startsWith('EVT') ? 'event' : bId.startsWith('FOOD') ? 'food' : 'movie'
     );
-    
-    // Normalize ticket structure
+
+    return {
+      bookingId: bId,
+      orderType: inferredType,
+      movie: compact.m || compact.movie || 'Tiket Bioskop CineFlix',
+      cinema: compact.c || compact.cinema || 'CINEFLIX CINEMA',
+      studio: compact.s || compact.studio || (inferredType === 'food' ? 'Concession Counter' : 'Studio Reguler'),
+      date: compact.d || compact.date || new Date().toLocaleDateString('id-ID'),
+      time: compact.t || compact.time || '19:00 WIB',
+      seats: compact.st || compact.seats || ['A1'],
+      totalPrice: compact.p || compact.totalPrice || 0,
+      grandTotal: compact.p || compact.grandTotal || 0,
+      paymentMethod: compact.pm || compact.paymentMethod || 'GoPay',
+      buyerName: compact.n || compact.buyerName || 'Pelanggan CineFlix',
+      status: compact.chk ? 'SUDAH DIGUNAKAN (CHECKED IN)' : 'LUNAS & VALID',
+      paymentDate: new Date().toLocaleDateString('id-ID') + ' WIB',
+      gate: compact.g || compact.gate || (inferredType === 'food' ? 'Counter FnB • Jalur Ambil' : 'Gate 1 • Pintu Masuk'),
+      poster: compact.pos || compact.poster || (inferredType === 'food' ? 'assets/food1.png' : 'assets/avatar.jpg'),
+      checkedIn: Boolean(compact.chk)
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Retrieves all tickets from registry, user history, and latest receipt to ensure no ticket is ever lost.
+ */
+export function getAllTickets() {
+  const ticketMap = new Map();
+
+  // 1. Default demo tickets
+  INITIAL_TICKETS.forEach(t => {
+    if (t.bookingId) ticketMap.set(String(t.bookingId).toUpperCase(), t);
+  });
+
+  // 2. Saved tickets in verified registry
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        parsed.forEach(t => {
+          if (t.bookingId) ticketMap.set(String(t.bookingId).toUpperCase(), t);
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse verified tickets:', e);
+  }
+
+  // 3. Tickets from all users in cineflix_users
+  try {
+    const usersRaw = localStorage.getItem('cineflix_users');
+    if (usersRaw) {
+      const users = JSON.parse(usersRaw);
+      if (Array.isArray(users)) {
+        users.forEach(u => {
+          if (Array.isArray(u.ticketHistory)) {
+            u.ticketHistory.forEach(t => {
+              if (t && t.bookingId) {
+                const key = String(t.bookingId).toUpperCase();
+                if (!ticketMap.has(key)) {
+                  ticketMap.set(key, t);
+                }
+              }
+            });
+          }
+        });
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // 4. Latest receipt fallback
+  try {
+    const receiptRaw = localStorage.getItem('cineflix_receipt') || localStorage.getItem('receiptData');
+    if (receiptRaw) {
+      const receipt = JSON.parse(receiptRaw);
+      if (receipt && receipt.bookingId) {
+        const key = String(receipt.bookingId).toUpperCase();
+        if (!ticketMap.has(key)) {
+          ticketMap.set(key, receipt);
+        }
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  return Array.from(ticketMap.values());
+}
+
+/**
+ * Persist a ticket to the global verified ticket registry
+ */
+export function saveTicket(ticket) {
+  if (!ticket) return;
+  const bookingId = ticket.bookingId || ticket.orderId;
+  if (!bookingId) return;
+
+  try {
+    const tickets = getAllTickets();
+    const cleanId = String(bookingId).trim().toUpperCase();
+    const existingIndex = tickets.findIndex(
+      t => String(t.bookingId).trim().toUpperCase() === cleanId
+    );
+
+    const inferredType = ticket.orderType || (
+      cleanId.startsWith('EVT') ? 'event' : cleanId.startsWith('FOOD') ? 'food' : 'movie'
+    );
+
     const normalizedTicket = {
       ...ticket,
+      bookingId: cleanId,
       orderType: inferredType,
       studio: ticket.studio || ticket.cinemaStudio || (inferredType === 'food' ? 'Concession Counter' : 'Studio Reguler'),
       poster: ticket.poster || (inferredType === 'food' ? 'assets/food1.png' : 'assets/avatar.jpg'),
@@ -151,15 +329,62 @@ export function saveTicket(ticket) {
   }
 }
 
-export function getTicketByBookingId(bookingId) {
-  if (!bookingId) return null;
-  const cleanId = String(bookingId).trim().toUpperCase();
+/**
+ * Retrieve a ticket by bookingId or by a raw scanned input/URL
+ */
+export function getTicketByBookingId(input) {
+  if (!input) return null;
+
+  // 1. First, check if input contains an encoded portable payload (?d=...)
+  const fromPayload = decodeTicketPayload(input);
+  if (fromPayload) {
+    // Automatically persist to this device's storage so it's cached
+    saveTicket(fromPayload);
+    return fromPayload;
+  }
+
+  // 2. Extract clean booking ID
+  const cleanId = extractBookingId(input);
+  if (!cleanId) return null;
+
   const tickets = getAllTickets();
-  return tickets.find(t => String(t.bookingId).trim().toUpperCase() === cleanId) || null;
+  const match = tickets.find(t => String(t.bookingId).trim().toUpperCase() === cleanId);
+  return match || null;
 }
 
-export function getVerificationUrl(bookingId) {
-  const base = `${window.location.origin}${window.location.pathname}`;
-  const cleanBase = base.endsWith('/') ? base : `${base}/`;
-  return `${cleanBase}#/verify/${encodeURIComponent(bookingId)}`;
+/**
+ * Generates a bulletproof, portable verification URL for QR codes.
+ * Accepts either a booking ID or the full ticket object.
+ * When ticket object is passed, embeds a compressed base64 payload so any smartphone
+ * can verify it instantly even if the phone's browser has an empty localStorage!
+ */
+export function getVerificationUrl(ticketOrId) {
+  let bookingId = '';
+  let payloadStr = '';
+
+  if (ticketOrId && typeof ticketOrId === 'object') {
+    bookingId = ticketOrId.bookingId || ticketOrId.orderId || '';
+    payloadStr = encodeTicketPayload(ticketOrId);
+  } else {
+    bookingId = extractBookingId(ticketOrId);
+    // Try to find if ticket exists in registry to attach payload
+    const existing = getTicketByBookingId(bookingId);
+    if (existing) {
+      payloadStr = encodeTicketPayload(existing);
+    }
+  }
+
+  // Resolve base URL before any '#' hash fragment
+  const href = window.location.href;
+  const hashIndex = href.indexOf('#');
+  let baseUrl = hashIndex > -1 ? href.substring(0, hashIndex) : href;
+
+  // Clean trailing index.html and ensure trailing slash
+  baseUrl = baseUrl.replace(/index\.html\/?$/, '');
+  if (!baseUrl.endsWith('/')) {
+    baseUrl += '/';
+  }
+
+  const queryPart = payloadStr ? `?d=${encodeURIComponent(payloadStr)}` : '';
+  return `${baseUrl}#/verify/${encodeURIComponent(bookingId)}${queryPart}`;
 }

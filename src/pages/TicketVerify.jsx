@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, CheckCircle2, Ticket, Calendar, Clock, MapPin, User, Film, AlertTriangle, ArrowLeft, Printer, Sparkles, QrCode, ShoppingBag, Stamp, Check } from 'lucide-react';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import { ShieldCheck, CheckCircle2, Ticket, Calendar, Clock, MapPin, User, Film, AlertTriangle, ArrowLeft, Printer, Sparkles, QrCode, ShoppingBag, Stamp, Check, Search, HelpCircle, Smartphone } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { getTicketByBookingId, getAllTickets, saveTicket } from '../utils/ticketRegistry';
+import { getTicketByBookingId, getAllTickets, saveTicket, extractBookingId, decodeTicketPayload } from '../utils/ticketRegistry';
 import { useBooking } from '../context/BookingContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 export default function TicketVerify() {
   const { bookingId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { latestReceipt } = useBooking();
   const { user, updateTicketInHistory } = useAuth();
@@ -18,6 +19,7 @@ export default function TicketVerify() {
   const [loading, setLoading] = useState(true);
   const [searchCode, setSearchCode] = useState(bookingId || '');
   const [verificationTime, setVerificationTime] = useState('');
+  const [availableTickets, setAvailableTickets] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -30,19 +32,38 @@ export default function TicketVerify() {
       second: '2-digit'
     }) + ' WIB');
 
-    // Look for ticket in registry
+    // 1. Check for portable self-verifying payload (?d=...) from query string or hash
     let found = null;
-    if (bookingId) {
-      found = getTicketByBookingId(bookingId);
-      
-      // Fallback to latestReceipt if matching
-      if (!found && latestReceipt && latestReceipt.bookingId === bookingId) {
-        found = latestReceipt;
+    const fullUrlTarget = `${location.search} ${window.location.search} ${window.location.hash} ${bookingId || ''}`;
+    const payloadTicket = decodeTicketPayload(fullUrlTarget);
+
+    if (payloadTicket) {
+      saveTicket(payloadTicket);
+      found = payloadTicket;
+    }
+
+    // 2. If not decoded from payload, look up by cleaned booking ID
+    if (!found) {
+      const cleanId = extractBookingId(bookingId);
+      if (cleanId) {
+        found = getTicketByBookingId(cleanId);
+
+        // Fallback to latestReceipt if matching
+        if (!found && latestReceipt && extractBookingId(latestReceipt.bookingId) === cleanId) {
+          found = latestReceipt;
+          saveTicket(latestReceipt);
+        }
       }
+    }
+
+    // 3. Fallback: If no ID in route but we have latestReceipt in state, verify latestReceipt
+    if (!found && !bookingId && latestReceipt) {
+      found = latestReceipt;
     }
 
     setTicket(found);
     setLoading(false);
+    setAvailableTickets(getAllTickets());
 
     if (found) {
       try {
@@ -55,12 +76,26 @@ export default function TicketVerify() {
         // ignore
       }
     }
-  }, [bookingId, latestReceipt]);
+  }, [bookingId, location.search, latestReceipt]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!searchCode.trim()) return;
-    navigate(`/verify/${encodeURIComponent(searchCode.trim())}`);
+
+    // Check if pasted string has a payload
+    const decoded = decodeTicketPayload(searchCode.trim());
+    if (decoded) {
+      saveTicket(decoded);
+      navigate(`/verify/${encodeURIComponent(decoded.bookingId)}`);
+      return;
+    }
+
+    const clean = extractBookingId(searchCode.trim());
+    if (clean) {
+      navigate(`/verify/${encodeURIComponent(clean)}`);
+    } else {
+      showToast('Format kode tiket tidak valid.', 'error');
+    }
   };
 
   const handlePrint = () => {
@@ -95,7 +130,7 @@ export default function TicketVerify() {
     }
     setTicket(updated);
     showToast(isFood ? 'Pesanan makanan berhasil dikonfirmasi diambil!' : 'Check-in berhasil! Penonton diizinkan masuk studio.', 'success');
-    
+
     try {
       confetti({ particleCount: 90, spread: 75, origin: { y: 0.5 } });
     } catch (e) {}
@@ -106,7 +141,7 @@ export default function TicketVerify() {
 
   return (
     <div className="min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-8 animate-fadeIn">
-      
+
       {/* Top Navigation */}
       <div className="flex items-center justify-between no-print">
         <Link
@@ -130,7 +165,7 @@ export default function TicketVerify() {
       ) : ticket ? (
         /* Verified Ticket Display */
         <div className="space-y-6">
-          
+
           {/* Security Status Card */}
           <div className="bg-gradient-to-r from-emerald-950/70 via-emerald-900/40 to-teal-950/70 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -144,7 +179,7 @@ export default function TicketVerify() {
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 mb-2">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>
-                    {isEvent 
+                    {isEvent
                       ? 'EVENT PASS RESMI TERVERIFIKASI & VALID'
                       : isFood
                       ? 'BUKTI PESANAN FnB RESMI TERVERIFIKASI'
@@ -174,7 +209,7 @@ export default function TicketVerify() {
 
           {/* Ticket Information Card */}
           <div className="bg-[#141424] border border-white/15 rounded-3xl overflow-hidden shadow-2xl relative">
-            
+
             {/* Header banner */}
             <div className="bg-gradient-to-r from-[#6a11cb] via-[#3b82f6] to-[#2575fc] p-5 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -189,7 +224,7 @@ export default function TicketVerify() {
             </div>
 
             <div className="p-6 sm:p-8 space-y-6">
-              
+
               {/* Product/Movie info */}
               <div className="flex flex-col sm:flex-row gap-5 pb-6 border-b border-white/10 items-center sm:items-start text-center sm:text-left">
                 {ticket.poster && (
@@ -317,10 +352,10 @@ export default function TicketVerify() {
               >
                 <Check className="w-5 h-5 stroke-[3]" />
                 <span>
-                  {isFood 
-                    ? "Konfirmasi Pesanan Makanan Diambil di Konter" 
-                    : isEvent 
-                    ? "Konfirmasi Check-In Akses Event Pass" 
+                  {isFood
+                    ? "Konfirmasi Pesanan Makanan Diambil di Konter"
+                    : isEvent
+                    ? "Konfirmasi Check-In Akses Event Pass"
                     : "Konfirmasi Masuk Studio Bioskop (Check-In Gerbang)"}
                 </span>
               </button>
@@ -349,7 +384,7 @@ export default function TicketVerify() {
         </div>
       ) : (
         /* Ticket Not Found */
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-8 sm:p-12 text-center space-y-6">
+        <div className="bg-[#141424] border border-white/10 rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-2xl">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-lg">
             <AlertTriangle className="w-8 h-8" />
           </div>
@@ -358,28 +393,66 @@ export default function TicketVerify() {
             Kode booking <code className="font-mono text-amber-300 font-bold">{bookingId || '(kosong)'}</code> tidak ditemukan dalam sistem database tiket CineFlix.
           </p>
 
+          {/* Smart Search Form */}
           <form onSubmit={handleSearch} className="max-w-md mx-auto flex gap-2">
             <input
               type="text"
               value={searchCode}
               onChange={(e) => setSearchCode(e.target.value)}
-              placeholder="Masukkan kode booking tiket/makanan..."
-              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono uppercase focus:outline-none focus:border-purple-500"
+              placeholder="Ketik kode (misal FLIX-98214532) atau tempel URL scan..."
+              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm font-mono placeholder-gray-500 focus:outline-none focus:border-purple-500"
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-colors cursor-pointer"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 text-white font-bold text-sm transition-all cursor-pointer flex items-center gap-1.5"
             >
-              Cari
+              <Search className="w-4 h-4" />
+              <span>Cari</span>
             </button>
           </form>
 
-          <div className="pt-4 border-t border-white/10">
+          {/* Quick Click Available Tickets */}
+          {availableTickets.length > 0 && (
+            <div className="pt-6 border-t border-white/10 max-w-md mx-auto space-y-3 text-left">
+              <span className="text-xs font-bold text-gray-300 block">
+                Tiket Valid yang Tersedia di Sistem:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {availableTickets.slice(0, 4).map((t) => (
+                  <button
+                    key={t.bookingId}
+                    type="button"
+                    onClick={() => {
+                      saveTicket(t);
+                      navigate(`/verify/${encodeURIComponent(t.bookingId)}`);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>{t.bookingId}</span>
+                    <span className="text-[10px] text-gray-400 font-sans">({t.movie.split(':')[0]})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Helpful Cross-Device Scanning Note */}
+          <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-gray-400 text-left space-y-2">
+            <div className="flex items-center gap-2 text-purple-300 font-bold">
+              <Smartphone className="w-4 h-4" />
+              <span>Tips Pemindaian Antar Perangkat (HP ke Komputer):</span>
+            </div>
+            <p className="leading-relaxed">
+              Jika Anda men-scan QR code di komputer menggunakan kamera smartphone, pastikan QR code yang di-scan menampilkan QR Code terbaru dari halaman pembayaran atau modal E-Tiket profil, karena QR Code kami telah dilengkapi dengan <strong>enkripsi payload otomatis</strong> yang langsung memvalidasi data tanpa perlu login ulang di HP.
+            </p>
+          </div>
+
+          <div className="pt-2">
             <Link
               to="/"
-              className="text-xs text-purple-400 hover:underline"
+              className="text-xs text-purple-400 hover:underline inline-flex items-center gap-1"
             >
-              Kembali ke Beranda
+              <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Beranda
             </Link>
           </div>
         </div>
