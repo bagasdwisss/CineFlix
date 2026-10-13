@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Printer, Home, User, Ticket, QrCode, ShieldCheck, Sparkles, Camera } from 'lucide-react';
+import { CheckCircle2, Printer, Home, User, Ticket, QrCode, ShieldCheck, Sparkles, Camera, Smartphone, Scan } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
@@ -13,6 +13,7 @@ export default function Receipt() {
   const { latestReceipt } = useBooking();
   const barcodeRef = useRef(null);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [activeBarcodeType, setActiveBarcodeType] = useState('qr'); // 'qr' | 'barcode' | 'both'
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   useEffect(() => {
@@ -32,8 +33,24 @@ export default function Receipt() {
     // 1. Ensure ticket is saved to global verified registry
     saveTicket(latestReceipt);
 
-    // 2. Render 1D Barcode
-    if (barcodeRef.current && latestReceipt.bookingId) {
+    // 2. Generate Real 2D QR Code with dark black modules on crisp white background for phone scanning!
+    const verifyUrl = getVerificationUrl(latestReceipt.bookingId);
+    QRCode.toDataURL(verifyUrl, {
+      width: 256,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    })
+      .then((url) => setQrCodeUrl(url))
+      .catch((err) => console.error('QR code error:', err));
+  }, [latestReceipt]);
+
+  // Render 1D Barcode with JsBarcode whenever barcodeRef is present
+  useEffect(() => {
+    if (barcodeRef.current && latestReceipt?.bookingId) {
       try {
         JsBarcode(barcodeRef.current, latestReceipt.bookingId, {
           format: "CODE128",
@@ -50,20 +67,7 @@ export default function Receipt() {
         console.error('Barcode render error:', err);
       }
     }
-
-    // 3. Generate Real 2D QR Code for live scanning via smartphone camera
-    const verifyUrl = getVerificationUrl(latestReceipt.bookingId);
-    QRCode.toDataURL(verifyUrl, {
-      width: 220,
-      margin: 1,
-      color: {
-        dark: '#ffffff',
-        light: '#00000000'
-      }
-    })
-      .then((url) => setQrCodeUrl(url))
-      .catch((err) => console.error('QR code error:', err));
-  }, [latestReceipt]);
+  }, [latestReceipt, activeBarcodeType]);
 
   if (!latestReceipt) {
     return (
@@ -170,45 +174,114 @@ export default function Receipt() {
             </span>
           </div>
 
-          {/* Barcode & Scannable QR Code */}
-          <div className="bg-black/30 border border-white/10 rounded-2xl p-5 text-center space-y-4">
+          {/* Barcode & Scannable QR Code Section */}
+          <div className="bg-black/40 border border-white/10 rounded-2xl p-5 text-center space-y-4">
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              {/* QR Code */}
-              {qrCodeUrl && (
-                <div className="flex flex-col items-center">
-                  <div className="p-2.5 bg-white rounded-2xl shadow-xl ring-4 ring-purple-500/20">
+            {/* Clear Explanation & Type Switcher */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-gray-300">
+                <Scan className="w-4 h-4 text-purple-400" />
+                <span>Pilih Tampilan Barcode Tiket:</span>
+              </div>
+
+              <div className="inline-flex p-1 bg-white/5 rounded-xl border border-white/10 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setActiveBarcodeType('qr')}
+                  className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all ${
+                    activeBarcodeType === 'qr'
+                      ? 'bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white shadow-md'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>QR Code (Scan Kamera HP)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveBarcodeType('barcode')}
+                  className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all ${
+                    activeBarcodeType === 'barcode'
+                      ? 'bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white shadow-md'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Ticket className="w-3.5 h-3.5" />
+                  <span>Barcode Garis (Scanner Bioskop)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveBarcodeType('both')}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                    activeBarcodeType === 'both'
+                      ? 'bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white shadow-md'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  Semua
+                </button>
+              </div>
+            </div>
+
+            {/* Display Container */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-2">
+              
+              {/* 1. Primary 2D QR Code (Scan with Smartphone Camera) */}
+              {(activeBarcodeType === 'qr' || activeBarcodeType === 'both') && qrCodeUrl && (
+                <div className="flex flex-col items-center animate-fadeIn">
+                  <div className="p-3 bg-white rounded-2xl shadow-2xl ring-4 ring-purple-500/30">
                     <img
                       src={qrCodeUrl}
-                      alt="QR Code Tiket"
-                      className="w-32 h-32 object-contain"
+                      alt={`QR Code ${latestReceipt.bookingId}`}
+                      className="w-40 h-40 sm:w-44 sm:h-44 object-contain"
                     />
                   </div>
-                  <span className="text-[10px] text-gray-400 mt-2 font-mono flex items-center gap-1">
-                    <QrCode className="w-3 h-3 text-purple-400" /> Scan via Kamera HP
+                  <span className="text-xs font-mono font-bold text-amber-300 mt-2.5 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                    KODE: {latestReceipt.bookingId}
+                  </span>
+                  <span className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Siap di-scan oleh kamera HP
                   </span>
                 </div>
               )}
 
-              {/* 1D Barcode */}
-              <div className="flex flex-col items-center overflow-hidden max-w-full">
-                <svg ref={barcodeRef} className="max-w-full h-auto" />
-                <span className="text-[10px] text-gray-400 mt-1 font-mono">
-                  Format Barcode: CODE128
-                </span>
-              </div>
+              {/* 2. Conventional 1D Barcode (For Cinema Laser Gate Reader) */}
+              {(activeBarcodeType === 'barcode' || activeBarcodeType === 'both') && (
+                <div className="flex flex-col items-center overflow-hidden max-w-full animate-fadeIn py-2">
+                  <svg ref={barcodeRef} className="max-w-full h-auto" />
+                  <span className="text-[10px] text-gray-400 mt-1 font-mono">
+                    Format: CODE128 Bioskop (Untuk Scanner Laser Petugas)
+                  </span>
+                </div>
+              )}
             </div>
 
-            <p className="text-xs text-gray-300 leading-relaxed max-w-md mx-auto">
-              Arahkan kamera smartphone Anda ke QR code di atas untuk memindai tiket langsung, atau gunakan tombol uji coba scan di bawah.
-            </p>
+            {/* Clear Explanation Note for the User */}
+            <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-200 leading-relaxed max-w-md mx-auto text-left sm:text-center">
+              {activeBarcodeType === 'qr' ? (
+                <span>
+                  💡 <strong>Barcode untuk di-scan HP adalah QR Code (kotak di atas)</strong>. Buka aplikasi kamera smartphone Anda (iPhone / Android) dan arahkan ke QR Code untuk memverifikasi tiket secara otomatis!
+                </span>
+              ) : activeBarcodeType === 'barcode' ? (
+                <span>
+                  💡 <strong>Barcode Garis 1D</strong> ini ditujukan untuk pemindai optik / scanner laser petugas bioskop di pintu masuk studio bioskop.
+                </span>
+              ) : (
+                <span>
+                  💡 <strong>QR Code (kiri/atas)</strong> untuk kamera smartphone Anda, sedangkan <strong>Barcode Garis (kanan/bawah)</strong> untuk scanner laser petugas bioskop.
+                </span>
+              )}
+            </div>
+
           </div>
 
         </div>
 
         {/* Security watermark footer */}
-        <div className="bg-black/40 px-6 py-3 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400">
-          <span>SEC-CODE: {latestReceipt.bookingId}</span>
+        <div className="bg-black/50 px-6 py-3 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400">
+          <span className="font-mono">SEC-CODE: {latestReceipt.bookingId}</span>
           <span className="text-emerald-400 font-semibold flex items-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5" /> Terverifikasi Sistem Bioskop
           </span>
