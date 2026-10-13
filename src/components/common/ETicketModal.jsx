@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Printer, ShieldCheck, Ticket, QrCode, ExternalLink, Sparkles, CheckCircle2, Smartphone, Scan } from 'lucide-react';
+import { X, Printer, ShieldCheck, Ticket, QrCode, ExternalLink, Sparkles, CheckCircle2, Smartphone, Scan, Download } from 'lucide-react';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { useNavigate } from 'react-router-dom';
 import { getVerificationUrl, saveTicket } from '../../utils/ticketRegistry';
+import { downloadTicketImage } from '../../utils/ticketExporter';
 
 export default function ETicketModal({ ticket, onClose, onTestScan }) {
   const navigate = useNavigate();
@@ -289,21 +290,29 @@ export default function ETicketModal({ ticket, onClose, onTestScan }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
             <button
               onClick={handleOpenVerify}
-              className="py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
+              className="py-3 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>Verifikasi / Scan Tiket</span>
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              <span>Verifikasi Tiket</span>
+            </button>
+
+            <button
+              onClick={() => downloadTicketImage(ticket)}
+              className="py-3 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
+            >
+              <Download className="w-4 h-4 shrink-0" />
+              <span>Download (HD)</span>
             </button>
 
             <button
               onClick={handlePrint}
-              className="py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-white/10 transition-colors cursor-pointer"
+              className="py-3 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center justify-center gap-1.5 border border-white/10 transition-colors cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
-              <span>Cetak / Simpan E-Tiket</span>
+              <Printer className="w-4 h-4 shrink-0" />
+              <span>Cetak / Print</span>
             </button>
           </div>
 

@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Printer, Home, User, Ticket, QrCode, ShieldCheck, Sparkles, Camera, Smartphone, Scan } from 'lucide-react';
+import { CheckCircle2, Printer, Home, User, Ticket, QrCode, ShieldCheck, Sparkles, Camera, Smartphone, Scan, Download } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { useBooking } from '../context/BookingContext';
 import { saveTicket, getVerificationUrl } from '../utils/ticketRegistry';
+import { downloadTicketImage } from '../utils/ticketExporter';
+import { playSuccess } from '../utils/soundEffects';
 import TicketScannerModal from '../components/common/TicketScannerModal';
 
 export default function Receipt() {
@@ -17,8 +19,9 @@ export default function Receipt() {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   useEffect(() => {
-    // Fire confetti celebration!
+    // Fire confetti celebration and audio!
     try {
+      playSuccess();
       confetti({
         particleCount: 110,
         spread: 80,
@@ -314,6 +317,16 @@ export default function Receipt() {
           <span>Uji Coba Scan Tiket Ini</span>
         </button>
 
+        <button
+          onClick={() => downloadTicketImage(latestReceipt)}
+          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
+        >
+          <Download className="w-4 h-4" />
+          <span>Download Gambar E-Tiket (HD)</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 no-print">
         <button
           onClick={() => setIsScannerOpen(true)}
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 font-bold text-sm transition-all cursor-pointer"

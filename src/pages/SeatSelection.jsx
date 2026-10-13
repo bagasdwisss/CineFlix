@@ -10,6 +10,7 @@ import BookingTimer from '../components/booking/BookingTimer';
 import SeatPOVModal from '../components/booking/SeatPOVModal';
 import SplitBillModal from '../components/booking/SplitBillModal';
 import CustomComboModal from '../components/booking/CustomComboModal';
+import { playSeatSelect } from '../utils/soundEffects';
 
 // Seat Category & Tier Configuration
 export const getSeatCategory = (seatId, basePrice = 75000) => {
@@ -139,6 +140,8 @@ export default function SeatSelection() {
       showToast(`Kursi ${seatId} sudah terisi oleh penonton lain.`, 'error');
       return;
     }
+
+    playSeatSelect();
 
     setSelectedSeats((prev) => {
       if (prev.includes(seatId)) {

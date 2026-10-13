@@ -5,18 +5,30 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { BookingProvider } from './context/BookingContext';
 import { ToastProvider } from './context/ToastContext';
+import { LanguageProvider } from './context/LanguageContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <BookingProvider>
-            <App />
-          </BookingProvider>
-        </AuthProvider>
-      </ToastProvider>
+      <LanguageProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <BookingProvider>
+              <App />
+            </BookingProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </LanguageProvider>
     </HashRouter>
   </React.StrictMode>
 );
+
+// Register PWA Service Worker for offline boarding pass access
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.log('ServiceWorker note:', err);
+    });
+  });
+}

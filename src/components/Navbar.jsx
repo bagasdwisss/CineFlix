@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Film, User, LogOut, Menu, X, ShoppingBag, Bookmark, QrCode, Sparkles } from 'lucide-react';
+import { Film, User, LogOut, Menu, X, ShoppingBag, Bookmark, QrCode, Sparkles, Volume2, VolumeX, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBooking } from '../context/BookingContext';
+import { useLanguage } from '../context/LanguageContext';
+import { isSoundEnabled, toggleSound } from '../utils/soundEffects';
 import TicketScannerModal from './common/TicketScannerModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { foodCart } = useBooking();
+  const { lang, toggleLanguage, t } = useLanguage();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [typingText, setTypingText] = useState("CineFlix");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [soundOn, setSoundOn] = useState(isSoundEnabled());
 
   // Animated typewriter slogan effect
   useEffect(() => {
@@ -119,7 +123,17 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {/* Quick Scanner Link in Nav */}
+              {/* Gate Staff Scanner Portal Link */}
+              <Link
+                to="/scanner"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:text-emerald-200 text-xs font-bold transition-all"
+                title="Portal Scanner Petugas Gerbang"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Gate Scanner</span>
+              </Link>
+
+              {/* Quick Scanner Modal in Nav */}
               <button
                 type="button"
                 onClick={() => setIsScannerOpen(true)}
@@ -128,6 +142,26 @@ export default function Navbar() {
               >
                 <QrCode className="w-3.5 h-3.5 text-purple-400" />
                 <span>Scan Tiket</span>
+              </button>
+
+              {/* Audio Sound Toggle */}
+              <button
+                type="button"
+                onClick={() => setSoundOn(toggleSound())}
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition-colors cursor-pointer"
+                title={soundOn ? 'Buzzer Suara: Aktif' : 'Buzzer Suara: Senyap'}
+              >
+                {soundOn ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
+              </button>
+
+              {/* Bilingual Language Switcher */}
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-gray-300 border border-white/10 transition-colors cursor-pointer"
+                title="Ganti Bahasa (ID / EN)"
+              >
+                {lang === 'id' ? '🇮🇩 ID' : '🇬🇧 EN'}
               </button>
             </div>
 
@@ -235,6 +269,15 @@ export default function Navbar() {
               </Link>
             ))}
 
+            <Link
+              to="/scanner"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Gate Scanner Petugas Bioskop</span>
+            </Link>
+
             <button
               type="button"
               onClick={() => {
@@ -246,6 +289,27 @@ export default function Navbar() {
               <QrCode className="w-4 h-4 text-purple-400" />
               <span>Pindai / Scan Tiket Bioskop</span>
             </button>
+
+            {/* Mobile Sound & Language Toggles */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setSoundOn(toggleSound())}
+                className="py-2.5 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-300 flex items-center justify-center gap-2"
+              >
+                {soundOn ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
+                <span>Buzzer: {soundOn ? 'Aktif' : 'Mute'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="py-2.5 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-300 flex items-center justify-center gap-2"
+              >
+                <span>Bahasa:</span>
+                <span className="text-amber-300">{lang === 'id' ? 'ID 🇮🇩' : 'EN 🇬🇧'}</span>
+              </button>
+            </div>
 
             <div className="pt-4 border-t border-white/10">
               {user ? (

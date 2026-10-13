@@ -6,6 +6,7 @@ import { eventsData } from '../data/eventsData';
 import MovieCard from '../components/movies/MovieCard';
 import MovieFilter from '../components/movies/MovieFilter';
 import TrailerModal from '../components/TrailerModal';
+import ShowtimeCountdown from '../components/common/ShowtimeCountdown';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -102,6 +103,11 @@ export default function Home() {
   return (
     <div className="space-y-16 pb-16">
       
+      {/* Live Showtime Countdown Alert Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 -mb-10">
+        <ShowtimeCountdown />
+      </div>
+
       {/* Hero Carousel Section */}
       <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-purple-950/40 aspect-[16/9] sm:aspect-[21/9] max-h-[560px] bg-[#12121f]">
