@@ -6,13 +6,19 @@ export default function MovieCard({ movie, onPlayTrailer }) {
   const navigate = useNavigate();
 
   return (
-    <div className="group shrink-0 w-[220px] sm:w-[250px] snap-start flex flex-col transition-all duration-300">
+    <div className="group shrink-0 w-[200px] sm:w-[240px] snap-start flex flex-col transition-all duration-300">
       {/* Poster Image Container */}
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#16213e] shadow-lg shadow-black/40 group-hover:shadow-purple-500/30 group-hover:-translate-y-2 transition-all duration-300">
+      <div 
+        onClick={() => navigate(`/movie/${movie.id}`)}
+        className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-[#16213e] shadow-lg shadow-black/40 group-hover:shadow-purple-500/30 group-hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+      >
         <img
           src={movie.poster}
           alt={movie.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            e.target.src = 'assets/avatar.jpg';
+          }}
         />
 
         {/* Rating Badge */}
@@ -26,12 +32,15 @@ export default function MovieCard({ movie, onPlayTrailer }) {
           {movie.ageRating}
         </div>
 
-        {/* Action Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 gap-2">
+        {/* Action Overlay (Desktop Hover) */}
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="hidden sm:flex absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex-col justify-end p-4 gap-2"
+        >
           {onPlayTrailer && (
             <button
               onClick={() => onPlayTrailer({ title: movie.title, url: movie.trailer })}
-              className="w-full py-2 px-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full py-2 px-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-white" /> Trailer
             </button>
@@ -46,18 +55,18 @@ export default function MovieCard({ movie, onPlayTrailer }) {
 
           <button
             onClick={() => navigate(`/booking?movie=${encodeURIComponent(movie.title)}`)}
-            className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/25"
+            className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/25 cursor-pointer hover:opacity-95"
           >
             <Ticket className="w-3.5 h-3.5" /> Pesan Tiket
           </button>
         </div>
       </div>
 
-      {/* Info */}
+      {/* Info & Mobile Button */}
       <div className="mt-3">
         <Link
           to={`/movie/${movie.id}`}
-          className="font-bold text-white text-base hover:text-[#2575fc] transition-colors line-clamp-1"
+          className="font-bold text-white text-sm sm:text-base hover:text-[#2575fc] transition-colors line-clamp-1"
         >
           {movie.title}
         </Link>
@@ -68,6 +77,17 @@ export default function MovieCard({ movie, onPlayTrailer }) {
             {movie.duration}
           </span>
         </div>
+
+        {/* Dedicated Mobile Fast-Book Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/booking?movie=${encodeURIComponent(movie.title)}`);
+          }}
+          className="w-full mt-2.5 sm:hidden py-2 px-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/20 active:scale-95 transition-all"
+        >
+          <Ticket className="w-3.5 h-3.5" /> Pesan Tiket
+        </button>
       </div>
     </div>
   );

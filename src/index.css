@@ -1,45 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --primary-color: #6a11cb;
   --secondary-color: #2575fc;
-  --dark-color: #1a1a2e;
-  --light-color: #f8f9fa;
-  --accent-color: #ff4d4d;
-  --card-bg: rgba(255, 255, 255, 0.05);
+  --dark-color: #141424;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #141424 50%, #0d0d18 100%);
   color: #f8f9fa;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #141424;
+  background: #0d0d18;
 }
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, #6a11cb, #2575fc);
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2575fc;
+  background: #3b82f6;
 }
 
 /* Hide scrollbar utility */
@@ -51,7 +57,22 @@ body {
   scrollbar-width: none;
 }
 
-/* Animations */
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dropdown {
+  background: rgba(20, 20, 36, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Glow animation */
 @keyframes pulseGlow {
   0%, 100% {
     box-shadow: 0 0 15px rgba(106, 17, 203, 0.4);
@@ -65,7 +86,7 @@ body {
   animation: pulseGlow 3s infinite;
 }
 
-/* Print Styles for Receipts */
+/* Print Styles for Receipts & Boarding Passes */
 @media print {
   body {
     background: white !important;
@@ -76,12 +97,8 @@ body {
     display: none !important;
   }
 
-  .print-area {
+  .print-area, #root {
     box-shadow: none !important;
-    border: 1px solid #ddd !important;
-    background: white !important;
     color: black !important;
-    max-width: 100% !important;
-    margin: 0 !important;
   }
 }

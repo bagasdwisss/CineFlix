@@ -5,6 +5,8 @@ import { useBooking } from '../context/BookingContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { evaluateVoucher, formatIDR } from '../utils/formatters';
+import { saveTicket } from '../utils/ticketRegistry';
+import { moviesData } from '../data/moviesData';
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -93,43 +95,45 @@ export default function Payment() {
         reserveSlotSeats(bookingData.slotKey, bookingData.seats);
       }
 
+      // Match movie poster
+      const movieMatch = moviesData.find(
+        (m) => m.title.toLowerCase() === (bookingData.movie || '').toLowerCase()
+      );
+      const poster = movieMatch ? movieMatch.poster : (bookingData.poster || 'assets/avatar.jpg');
+
       // 2. Build full receipt object
       const receipt = {
         ...bookingData,
+        poster,
+        studio: bookingData.studio || 'Studio 1 (Dolby Atmos)',
+        buyerName: user ? user.name : 'Pelanggan CineFlix',
+        buyerEmail: user ? user.email : '',
         paymentMethod,
         discount,
         serviceFee,
         grandTotal,
-        paymentStatus: 'Berhasil Lunas',
+        totalPrice: grandTotal,
+        paymentStatus: 'LUNAS & VALID',
         paymentTime: new Date().toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
           hour: '2-digit',
           minute: '2-digit'
-        })
+        }) + ' WIB'
       };
 
+      // 3. Save to global verified registry
+      saveTicket(receipt);
       setLatestReceipt(receipt);
 
-      // 3. Save to user profile ticket history if logged in
+      // 4. Save to user profile ticket history if logged in
       if (user) {
-        addTicketToHistory({
-          bookingId: receipt.bookingId,
-          movie: receipt.movie,
-          cinema: receipt.cinema,
-          date: receipt.date,
-          time: receipt.time,
-          seats: receipt.seats,
-          totalPrice: receipt.grandTotal,
-          paymentMethod: receipt.paymentMethod,
-          status: 'Berhasil',
-          paymentDate: receipt.paymentTime
-        });
+        addTicketToHistory(receipt);
       }
 
       setIsProcessing(false);
-      showToast('Pembayaran berhasil dikonfirmasi! E-Tiket diterbitkan.', 'success');
+      showToast('Pembayaran berhasil dikonfirmasi! E-Tiket resmi diterbitkan.', 'success');
       navigate('/receipt');
     }, 1200);
   };

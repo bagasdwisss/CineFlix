@@ -23,6 +23,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
+import TicketVerify from './pages/TicketVerify';
 
 // Helper component to scroll to top on every route transition
 function ScrollToTop() {
@@ -71,6 +72,8 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/verify/:bookingId" element={<TicketVerify />} />
+          <Route path="/verify" element={<TicketVerify />} />
 
           {/* Fallback to Home */}
           <Route path="*" element={<Navigate to="/home" replace />} />

@@ -2,13 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#141424">
   <title>CineFlix - Book Anytime, Anywhere</title>
   
-  <!-- Fonts -->
+  <!-- Modern Google Fonts: Plus Jakarta Sans & Cinzel -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN for instant styling support -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,15 +27,29 @@
             }
           },
           fontFamily: {
-            sans: ['Poppins', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'Poppins', 'sans-serif'],
             cinzel: ['Cinzel', 'serif']
+          },
+          animation: {
+            fadeIn: 'fadeIn 0.25s ease-out forwards',
+            pulseGlow: 'pulseGlow 3s infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(6px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 15px rgba(106, 17, 203, 0.4)' },
+              '50%': { boxShadow: '0 0 30px rgba(37, 117, 252, 0.6)' },
+            }
           }
         }
       }
     }
   </script>
 </head>
-<body class="bg-[#1a1a2e] text-[#f8f9fa] font-['Poppins',sans-serif] min-h-screen">
+<body class="bg-[#141424] text-[#f8f9fa] font-['Plus_Jakarta_Sans',sans-serif] min-h-screen antialiased selection:bg-purple-600 selection:text-white">
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

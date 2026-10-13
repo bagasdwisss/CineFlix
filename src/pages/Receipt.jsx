@@ -1,29 +1,39 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Printer, Home, User, Ticket, QrCode } from 'lucide-react';
+import { CheckCircle2, Printer, Home, User, Ticket, QrCode, ShieldCheck, Sparkles, Camera } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import JsBarcode from 'jsbarcode';
+import QRCode from 'qrcode';
 import { useBooking } from '../context/BookingContext';
+import { saveTicket, getVerificationUrl } from '../utils/ticketRegistry';
+import TicketScannerModal from '../components/common/TicketScannerModal';
 
 export default function Receipt() {
   const navigate = useNavigate();
   const { latestReceipt } = useBooking();
   const barcodeRef = useRef(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   useEffect(() => {
     // Fire confetti celebration!
     try {
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 110,
+        spread: 80,
         origin: { y: 0.6 }
       });
     } catch (e) {
       console.log(e);
     }
 
-    // Render Barcode
-    if (barcodeRef.current && latestReceipt?.bookingId) {
+    if (!latestReceipt) return;
+
+    // 1. Ensure ticket is saved to global verified registry
+    saveTicket(latestReceipt);
+
+    // 2. Render 1D Barcode
+    if (barcodeRef.current && latestReceipt.bookingId) {
       try {
         JsBarcode(barcodeRef.current, latestReceipt.bookingId, {
           format: "CODE128",
@@ -33,22 +43,36 @@ export default function Receipt() {
           displayValue: true,
           background: "transparent",
           textColor: "#9ca3af",
-          fontSize: 14
+          fontSize: 14,
+          margin: 4
         });
       } catch (err) {
         console.error('Barcode render error:', err);
       }
     }
+
+    // 3. Generate Real 2D QR Code for live scanning via smartphone camera
+    const verifyUrl = getVerificationUrl(latestReceipt.bookingId);
+    QRCode.toDataURL(verifyUrl, {
+      width: 220,
+      margin: 1,
+      color: {
+        dark: '#ffffff',
+        light: '#00000000'
+      }
+    })
+      .then((url) => setQrCodeUrl(url))
+      .catch((err) => console.error('QR code error:', err));
   }, [latestReceipt]);
 
   if (!latestReceipt) {
     return (
-      <div className="max-w-md mx-auto my-20 p-8 rounded-2xl bg-white/5 border border-white/10 text-center">
+      <div className="max-w-md mx-auto my-20 p-8 rounded-3xl bg-white/5 border border-white/10 text-center backdrop-blur-xl">
         <h2 className="text-xl font-bold text-white mb-2">Tidak Ada Bukti Pembayaran</h2>
         <p className="text-sm text-gray-400 mb-6">Belum ada transaksi tiket yang diselesaikan.</p>
         <button
           onClick={() => navigate('/')}
-          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-semibold text-sm"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-semibold text-sm hover:scale-[1.02] transition-transform"
         >
           Kembali ke Beranda
         </button>
@@ -60,70 +84,77 @@ export default function Receipt() {
     window.print();
   };
 
+  const seatsArray = Array.isArray(latestReceipt.seats) ? latestReceipt.seats : [latestReceipt.seats];
+
   return (
-    <div className="max-w-xl mx-auto px-4 py-12 space-y-8">
+    <div className="max-w-xl mx-auto px-4 py-12 space-y-8 animate-fadeIn">
       
       {/* Success Badge Header */}
       <div className="text-center space-y-2">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20">
+        <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20 ring-4 ring-emerald-500/10">
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h1 className="text-3xl font-black text-white">PEMBAYARAN BERHASIL!</h1>
+        <h1 className="text-3xl font-black text-white tracking-tight">PEMBAYARAN BERHASIL!</h1>
         <p className="text-sm text-gray-300">
-          E-Tiket Anda telah terbit dan siap digunakan di bioskop.
+          E-Tiket resmi Anda telah terbit dan siap digunakan di bioskop.
         </p>
       </div>
 
       {/* Ticket Receipt Card (Printable Area) */}
-      <div className="bg-[#16213e] border border-white/15 rounded-3xl overflow-hidden shadow-2xl relative">
+      <div className="bg-[#141424] border border-white/15 rounded-3xl overflow-hidden shadow-2xl relative">
         
         {/* Ticket Header */}
-        <div className="bg-gradient-to-r from-[#6a11cb] to-[#2575fc] p-6 text-white text-center relative">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <Ticket className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">OFFICIAL E-TICKET</span>
+        <div className="bg-gradient-to-r from-[#6a11cb] via-[#3b82f6] to-[#2575fc] p-6 text-white text-center relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
+          <div className="flex items-center justify-center gap-2 mb-1.5 text-xs font-bold uppercase tracking-widest text-purple-200">
+            <Ticket className="w-4 h-4 text-amber-300" />
+            <span>OFFICIAL E-TICKET BOARDING PASS</span>
           </div>
           <h2 className="text-2xl font-black tracking-wide font-['Cinzel',serif]">CINEFLIX</h2>
-          <p className="text-xs text-purple-200 mt-1">Book Anytime, Anywhere</p>
+          <p className="text-xs text-purple-100 mt-1">Book Anytime, Anywhere</p>
         </div>
 
         {/* Ticket Details */}
         <div className="p-6 sm:p-8 space-y-6">
           
           <div className="text-center pb-6 border-b border-white/10">
-            <span className="text-xs text-gray-400 uppercase tracking-wider block mb-1">Judul Film</span>
+            <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider block mb-1">Judul Film</span>
             <h3 className="text-2xl font-black text-white">{latestReceipt.movie}</h3>
-            <span className="inline-block mt-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">
-              ✓ {latestReceipt.paymentStatus || 'LUNAS'}
+            <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
+              <CheckCircle2 className="w-3.5 h-3.5" /> {latestReceipt.paymentStatus || 'LUNAS & VALID'}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm pb-6 border-b border-white/10">
             <div>
-              <span className="text-xs text-gray-400 block">Kode Booking:</span>
-              <span className="font-bold text-white tracking-wider font-mono">{latestReceipt.bookingId}</span>
+              <span className="text-xs text-gray-400 block mb-0.5">Kode Booking:</span>
+              <span className="font-mono font-bold text-amber-300 tracking-wider bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block text-xs sm:text-sm">
+                {latestReceipt.bookingId}
+              </span>
             </div>
             <div>
-              <span className="text-xs text-gray-400 block">Metode Bayar:</span>
-              <span className="font-bold text-white">{latestReceipt.paymentMethod}</span>
+              <span className="text-xs text-gray-400 block mb-0.5">Metode Bayar:</span>
+              <span className="font-semibold text-white">{latestReceipt.paymentMethod}</span>
             </div>
             <div>
-              <span className="text-xs text-gray-400 block">Tanggal Tayang:</span>
+              <span className="text-xs text-gray-400 block mb-0.5">Tanggal Tayang:</span>
               <span className="font-medium text-white">{latestReceipt.date}</span>
             </div>
             <div>
-              <span className="text-xs text-gray-400 block">Jam Tayang:</span>
+              <span className="text-xs text-gray-400 block mb-0.5">Jam Tayang:</span>
               <span className="font-medium text-white">{latestReceipt.time} WIB</span>
             </div>
             <div className="col-span-2">
-              <span className="text-xs text-gray-400 block">Bioskop & Studio:</span>
+              <span className="text-xs text-gray-400 block mb-0.5">Bioskop & Studio:</span>
               <span className="font-medium text-white">{latestReceipt.cinema}</span>
             </div>
             <div className="col-span-2">
-              <span className="text-xs text-gray-400 block">Nomor Kursi ({latestReceipt.seats.length} Kursi):</span>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {latestReceipt.seats.map((s) => (
-                  <span key={s} className="px-3 py-1 rounded-lg bg-[#6a11cb]/30 border border-purple-500/40 text-purple-200 font-bold text-xs">
+              <span className="text-xs text-gray-400 block mb-1">
+                Nomor Kursi ({seatsArray.length} Kursi):
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {seatsArray.map((s) => (
+                  <span key={s} className="px-3 py-1 rounded-lg bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/40 text-purple-200 font-bold text-xs">
                     {s}
                   </span>
                 ))}
@@ -139,28 +170,72 @@ export default function Receipt() {
             </span>
           </div>
 
-          {/* Barcode SVG Container */}
-          <div className="pt-2 flex flex-col items-center justify-center">
-            <svg ref={barcodeRef} className="max-w-full" />
-            <p className="text-[11px] text-gray-400 text-center mt-2">
-              Tunjukkan barcode ini kepada petugas bioskop atau scan di gerbang tiket studio.
+          {/* Barcode & Scannable QR Code */}
+          <div className="bg-black/30 border border-white/10 rounded-2xl p-5 text-center space-y-4">
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              {/* QR Code */}
+              {qrCodeUrl && (
+                <div className="flex flex-col items-center">
+                  <div className="p-2.5 bg-white rounded-2xl shadow-xl ring-4 ring-purple-500/20">
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Code Tiket"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                  <span className="text-[10px] text-gray-400 mt-2 font-mono flex items-center gap-1">
+                    <QrCode className="w-3 h-3 text-purple-400" /> Scan via Kamera HP
+                  </span>
+                </div>
+              )}
+
+              {/* 1D Barcode */}
+              <div className="flex flex-col items-center overflow-hidden max-w-full">
+                <svg ref={barcodeRef} className="max-w-full h-auto" />
+                <span className="text-[10px] text-gray-400 mt-1 font-mono">
+                  Format Barcode: CODE128
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-300 leading-relaxed max-w-md mx-auto">
+              Arahkan kamera smartphone Anda ke QR code di atas untuk memindai tiket langsung, atau gunakan tombol uji coba scan di bawah.
             </p>
           </div>
 
         </div>
 
+        {/* Security watermark footer */}
+        <div className="bg-black/40 px-6 py-3 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400">
+          <span>SEC-CODE: {latestReceipt.bookingId}</span>
+          <span className="text-emerald-400 font-semibold flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5" /> Terverifikasi Sistem Bioskop
+          </span>
+        </div>
+
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 no-print">
+        <button
+          onClick={() => navigate(`/verify/${encodeURIComponent(latestReceipt.bookingId)}`)}
+          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
+        >
+          <ShieldCheck className="w-4 h-4" />
+          <span>Uji Coba Scan Tiket Ini</span>
+        </button>
+
         <button
           onClick={handlePrint}
-          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/10 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/10 transition-colors cursor-pointer"
         >
           <Printer className="w-4 h-4" />
           <span>Cetak / Simpan Tiket</span>
         </button>
+      </div>
 
+      <div className="flex flex-col sm:flex-row gap-3 no-print">
         <Link
           to="/profile"
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-semibold text-sm shadow-md transition-opacity hover:opacity-90"
@@ -170,11 +245,17 @@ export default function Receipt() {
         </Link>
       </div>
 
-      <div className="text-center">
+      <div className="text-center no-print">
         <Link to="/" className="text-xs text-gray-400 hover:text-white transition-colors">
           ← Kembali ke Halaman Utama
         </Link>
       </div>
+
+      {/* Interactive Scanner Modal */}
+      <TicketScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+      />
 
     </div>
   );

@@ -140,11 +140,16 @@ export default function SeatSelection() {
       </div>
 
       {/* Screen Curved Display */}
-      <div className="relative max-w-2xl mx-auto pt-2 pb-10">
+      <div className="relative max-w-2xl mx-auto pt-2 pb-6">
         <div className="w-full h-3.5 rounded-[50%] bg-gradient-to-r from-transparent via-[#2575fc] to-transparent shadow-[0_15px_30px_rgba(37,117,252,0.4)]" />
         <p className="text-center text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mt-4">
           LAYAR BIOSKOP (SCREEN)
         </p>
+      </div>
+
+      {/* Mobile Swipe Hint */}
+      <div className="sm:hidden text-center text-[11px] text-gray-400 flex items-center justify-center gap-1.5 py-1">
+        <span>👉 Geser layar untuk melihat seluruh kursi studio</span>
       </div>
 
       {/* Interactive Seat Matrix */}
