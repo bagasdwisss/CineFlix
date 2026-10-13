@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { useBooking } from '../context/BookingContext';
+import { useLanguage } from '../context/LanguageContext';
 import { saveTicket, getVerificationUrl } from '../utils/ticketRegistry';
 import { downloadTicketImage } from '../utils/ticketExporter';
 import { playSuccess } from '../utils/soundEffects';
@@ -13,6 +14,7 @@ import TicketScannerModal from '../components/common/TicketScannerModal';
 export default function Receipt() {
   const navigate = useNavigate();
   const { latestReceipt } = useBooking();
+  const { t, lang } = useLanguage();
   const barcodeRef = useRef(null);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [activeBarcodeType, setActiveBarcodeType] = useState('qr'); // 'qr' | 'barcode' | 'both'
@@ -101,9 +103,9 @@ export default function Receipt() {
         <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/20 ring-4 ring-emerald-500/10">
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h1 className="text-3xl font-black text-white tracking-tight">PEMBAYARAN BERHASIL!</h1>
+        <h1 className="text-3xl font-black text-white tracking-tight">{t('paymentSuccess', 'PEMBAYARAN BERHASIL!')}</h1>
         <p className="text-sm text-gray-300">
-          E-Tiket resmi Anda telah terbit dan siap digunakan di bioskop.
+          {t('ticketIssued', 'E-Tiket resmi Anda telah terbit dan siap digunakan di bioskop.')}
         </p>
       </div>
 
@@ -314,7 +316,7 @@ export default function Receipt() {
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>Uji Coba Scan Tiket Ini</span>
+          <span>{t('testScanTicket', 'Uji Coba Scan Tiket Ini')}</span>
         </button>
 
         <button
@@ -322,7 +324,7 @@ export default function Receipt() {
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] active:scale-98 cursor-pointer"
         >
           <Download className="w-4 h-4" />
-          <span>Download Gambar E-Tiket (HD)</span>
+          <span>{t('downloadTicket', 'Download Gambar Tiket (HD)')}</span>
         </button>
       </div>
 
@@ -332,7 +334,7 @@ export default function Receipt() {
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 font-bold text-sm transition-all cursor-pointer"
         >
           <QrCode className="w-4 h-4" />
-          <span>Buka Scanner Bioskop</span>
+          <span>{lang === 'en' ? 'Open Ticket Scanner' : 'Buka Scanner Bioskop'}</span>
         </button>
 
         <button
@@ -340,7 +342,7 @@ export default function Receipt() {
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/10 transition-colors cursor-pointer"
         >
           <Printer className="w-4 h-4" />
-          <span>Cetak Tiket</span>
+          <span>{t('printTicket', 'Cetak Tiket')}</span>
         </button>
       </div>
 
@@ -350,13 +352,13 @@ export default function Receipt() {
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-semibold text-sm shadow-md transition-opacity hover:opacity-90"
         >
           <User className="w-4 h-4" />
-          <span>Lihat di Profil Saya</span>
+          <span>{t('viewInProfile', 'Lihat di Profil Saya')}</span>
         </Link>
       </div>
 
       <div className="text-center no-print">
         <Link to="/" className="text-xs text-gray-400 hover:text-white transition-colors">
-          ← Kembali ke Halaman Utama
+          ← {t('backToHome', 'Kembali ke Beranda')}
         </Link>
       </div>
 

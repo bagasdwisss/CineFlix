@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Newspaper, Calendar, User, ArrowRight, Search } from 'lucide-react';
 import { newsData } from '../data/newsData';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function News() {
+  const { t, lang } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -22,13 +24,13 @@ export default function News() {
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
         <span className="text-xs font-bold uppercase tracking-wider text-[#2575fc] px-3 py-1 rounded-full bg-[#2575fc]/10 mb-2 inline-block">
-          Kabar Terkini Dunia Perfilman
+          {t('newsBadge', 'Kabar Terkini Dunia Perfilman')}
         </span>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-white mt-1">
-          FLIX NEWS
+          {t('newsTitle', 'FLIX NEWS')}
         </h1>
         <p className="text-gray-400 text-sm sm:text-base mt-3">
-          Berita film terbaru, rumor Marvel, rekor box office global, dan ulasan mendalam perfilman tanah air dan internasional.
+          {t('newsSubtitle', 'Berita film terbaru, rumor Marvel, rekor box office global, dan ulasan mendalam perfilman tanah air dan internasional.')}
         </p>
       </div>
 
@@ -47,7 +49,7 @@ export default function News() {
                   : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5"
               }`}
             >
-              {c}
+              {c === 'All' ? (lang === 'en' ? 'All' : 'Semua') : c}
             </button>
           ))}
         </div>
@@ -59,7 +61,7 @@ export default function News() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari berita film..."
+            placeholder={t('searchNewsPlaceholder', 'Cari berita film...')}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-[#2575fc]"
           />
         </div>

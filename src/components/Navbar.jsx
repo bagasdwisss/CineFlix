@@ -11,18 +11,22 @@ import {
   Volume2, 
   VolumeX, 
   ShieldCheck,
-  ChevronDown
+  ChevronDown,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBooking } from '../context/BookingContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { isSoundEnabled, toggleSound } from '../utils/soundEffects';
 import TicketScannerModal from './common/TicketScannerModal';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { foodCart } = useBooking();
-  const { lang, toggleLanguage } = useLanguage();
+  const { lang, toggleLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -173,10 +177,20 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={toggleLanguage}
-                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-[11px] font-bold text-gray-300 border border-white/10 transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-[11px] font-bold text-gray-300 border border-white/10 transition-colors cursor-pointer flex items-center gap-1"
                 title="Ganti Bahasa (ID / EN)"
               >
-                {lang === 'id' ? 'ID' : 'EN'}
+                <span>{lang === 'id' ? '🇮🇩 ID' : '🇬🇧 EN'}</span>
+              </button>
+
+              {/* Theme Toggle Button (Light / Dark) */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition-colors cursor-pointer"
+                title={theme === 'dark' ? (lang === 'id' ? 'Aktifkan Mode Terang' : 'Switch to Light Mode') : (lang === 'id' ? 'Aktifkan Mode Gelap' : 'Switch to Dark Mode')}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-400" />}
               </button>
 
               {/* Food Cart Icon with Counter */}
@@ -235,6 +249,21 @@ export default function Navbar() {
                           <User className="w-3.5 h-3.5 text-purple-400" />
                           <span>Profil & Riwayat Tiket</span>
                         </Link>
+
+                        {/* Mode Terang / Mode Gelap Toggle */}
+                        <button
+                          type="button"
+                          onClick={() => toggleTheme()}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-gray-200 hover:bg-white/10 transition-colors cursor-pointer"
+                        >
+                          <span className="flex items-center gap-2">
+                            {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-blue-400" />}
+                            <span>{theme === 'dark' ? (lang === 'id' ? 'Mode Terang' : 'Light Mode') : (lang === 'id' ? 'Mode Gelap' : 'Dark Mode')}</span>
+                          </span>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-amber-300">
+                            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+                          </span>
+                        </button>
 
                         <button
                           type="button"
@@ -341,24 +370,33 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Utilities: Sound & Language */}
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            {/* Utilities: Theme, Sound & Language */}
+            <div className="grid grid-cols-3 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => toggleTheme()}
+                className="py-2.5 px-2 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex flex-col items-center justify-center gap-1 cursor-pointer"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-400" />}
+                <span className="text-[10px]">{theme === 'dark' ? '☀️ Terang' : '🌙 Gelap'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setSoundOn(toggleSound())}
-                className="py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center justify-center gap-2"
+                className="py-2.5 px-2 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex flex-col items-center justify-center gap-1 cursor-pointer"
               >
-                {soundOn ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-gray-500" />}
-                <span>Buzzer: {soundOn ? 'Aktif' : 'Mute'}</span>
+                {soundOn ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
+                <span className="text-[10px]">Suara: {soundOn ? 'On' : 'Off'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={toggleLanguage}
-                className="py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex items-center justify-center gap-1.5"
+                className="py-2.5 px-2 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-gray-300 flex flex-col items-center justify-center gap-1 cursor-pointer"
               >
-                <span>Bahasa:</span>
-                <span className="text-amber-300 font-bold">{lang === 'id' ? 'ID 🇮🇩' : 'EN 🇬🇧'}</span>
+                <span className="text-sm">{lang === 'id' ? '🇮🇩' : '🇬🇧'}</span>
+                <span className="text-[10px] text-amber-300 font-bold">{lang === 'id' ? 'ID' : 'EN'}</span>
               </button>
             </div>
 

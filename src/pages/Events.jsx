@@ -2,21 +2,24 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Clock, ArrowRight, Ticket } from 'lucide-react';
 import { eventsData } from '../data/eventsData';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Events() {
+  const { t, lang } = useLanguage();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
         <span className="text-xs font-bold uppercase tracking-wider text-[#2575fc] px-3 py-1 rounded-full bg-[#2575fc]/10 mb-2 inline-block">
-          CineFlix Special Experiences
+          {t('eventsBadge', 'CineFlix Special Experiences')}
         </span>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-white mt-1">
-          FLIX EVENTS
+          {t('eventsTitle', 'FLIX EVENTS')}
         </h1>
         <p className="text-gray-400 text-sm sm:text-base mt-3">
-          Nikmati festival film eksklusif, screening spesial karya sutradara legendaris, dan pengalaman sinematik tak terlupakan.
+          {t('eventsSubtitle', 'Nikmati festival film eksklusif, screening spesial karya sutradara legendaris, dan pengalaman sinematik tak terlupakan.')}
         </p>
       </div>
 
@@ -74,7 +77,7 @@ export default function Events() {
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-500/20 hover:opacity-90 transition-opacity"
               >
                 <Ticket className="w-4 h-4" />
-                <span>Pilih Tiket Pass</span>
+                <span>{t('getEventPass', 'Pilih Tiket Pass')}</span>
               </Link>
             </div>
 

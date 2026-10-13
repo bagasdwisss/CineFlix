@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Star, Clock, Ticket, Play } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function MovieCard({ movie, onPlayTrailer }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="group shrink-0 w-[200px] sm:w-[240px] snap-start flex flex-col transition-all duration-300">
@@ -50,14 +52,14 @@ export default function MovieCard({ movie, onPlayTrailer }) {
             to={`/movie/${movie.id}`}
             className="w-full py-2 px-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-semibold text-center transition-colors"
           >
-            Lihat Detail
+            {t('seeDetails')}
           </Link>
 
           <button
             onClick={() => navigate(`/booking?movie=${encodeURIComponent(movie.title)}`)}
             className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/25 cursor-pointer hover:opacity-95"
           >
-            <Ticket className="w-3.5 h-3.5" /> Pesan Tiket
+            <Ticket className="w-3.5 h-3.5" /> {t('bookNow')}
           </button>
         </div>
       </div>
@@ -84,9 +86,9 @@ export default function MovieCard({ movie, onPlayTrailer }) {
             e.stopPropagation();
             navigate(`/booking?movie=${encodeURIComponent(movie.title)}`);
           }}
-          className="w-full mt-2.5 sm:hidden py-2 px-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/20 active:scale-95 transition-all"
+          className="w-full mt-2.5 sm:hidden py-2 px-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/20 active:scale-95 transition-all cursor-pointer"
         >
-          <Ticket className="w-3.5 h-3.5" /> Pesan Tiket
+          <Ticket className="w-3.5 h-3.5" /> {t('bookNow')}
         </button>
       </div>
     </div>

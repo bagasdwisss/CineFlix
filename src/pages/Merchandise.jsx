@@ -8,10 +8,12 @@ import { merchData } from '../data/merchData';
 import { tumblersData } from '../data/tumblersData';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Merchandise() {
   const { showToast } = useToast();
   const { user } = useAuth();
+  const { t, lang } = useLanguage();
 
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,12 +37,12 @@ export default function Merchandise() {
   }, []);
 
   const categories = [
-    { id: 'all', label: 'Semua Koleksi' },
+    { id: 'all', label: lang === 'en' ? 'All Collections' : 'Semua Koleksi' },
     { id: 'Tumbler Club', label: 'Tumbler Club 🥤' },
     { id: 'Collectibles', label: 'Action Figures' },
     { id: 'Prop Replicas', label: 'Prop Replicas' },
-    { id: 'Apparel', label: 'Apparel & Jaket' },
-    { id: 'Posters & Prints', label: 'Poster Resmi' }
+    { id: 'Apparel', label: lang === 'en' ? 'Apparel & Merch' : 'Apparel & Jaket' },
+    { id: 'Posters & Prints', label: lang === 'en' ? 'Official Posters' : 'Poster Resmi' }
   ];
 
   const movies = useMemo(() => {

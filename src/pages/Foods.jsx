@@ -5,11 +5,13 @@ import { foodsData } from '../data/foodsData';
 import { cinemasData } from '../data/moviesData';
 import { useBooking } from '../context/BookingContext';
 import { useToast } from '../context/ToastContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Foods() {
   const navigate = useNavigate();
   const { foodCart, addFoodItem, updateFoodQty, removeFoodItem, clearFoodCart, foodSubtotal } = useBooking();
   const { showToast } = useToast();
+  const { t, lang } = useLanguage();
 
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedCinema, setSelectedCinema] = useState('CINEFLIX GRAND INDONESIA');
@@ -48,13 +50,13 @@ export default function Foods() {
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
-              <Sparkles className="w-3.5 h-3.5" /> CineFlix Concession & FnB
+              <Sparkles className="w-3.5 h-3.5" /> {t('foodsBadge', 'CineFlix Concession & FnB')}
             </span>
             <h1 className="text-3xl sm:text-5xl font-black text-white font-['Cinzel',serif] tracking-wide">
-              FLIX FOODS & DRINKS
+              {t('foodsTitle', 'FLIX FOODS & DRINKS')}
             </h1>
             <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
-              Pesan popcorn hangat, minuman dingin, dan camilan favorit secara online. Langsung ambil di konter tanpa antre saat menonton film!
+              {t('foodsSubtitle', 'Pesan popcorn hangat, minuman dingin, dan camilan favorit secara online. Langsung ambil di konter tanpa antre saat menonton film!')}
             </p>
           </div>
 
@@ -80,7 +82,7 @@ export default function Foods() {
               className="relative flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-bold text-xs sm:text-sm shadow-xl shadow-purple-500/30 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Keranjang ({totalCartCount})</span>
+              <span>{t('cartLabel', 'Keranjang')} ({totalCartCount})</span>
               {totalCartCount > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black text-[11px] font-black">
                   Rp {foodSubtotal.toLocaleString('id-ID')}
@@ -103,7 +105,7 @@ export default function Foods() {
                 : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
             }`}
           >
-            {cat}
+            {cat === 'All' ? (lang === 'en' ? 'All Items' : 'Semua Menu') : cat}
           </button>
         ))}
       </div>

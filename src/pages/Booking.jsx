@@ -3,11 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Calendar, Clock, MapPin, ArrowRight, Film, ChevronRight } from 'lucide-react';
 import { moviesData, cinemasData } from '../data/moviesData';
 import { useBooking } from '../context/BookingContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Booking() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { setBookingData } = useBooking();
+  const { t, lang } = useLanguage();
 
   // Selected Movie
   const initialMovieTitle = searchParams.get('movie') || moviesData[0].title;
@@ -16,8 +18,12 @@ export default function Booking() {
   });
 
   // Dates generator (Next 7 days)
-  const daysName = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
-  const monthsName = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const daysName = lang === 'en' 
+    ? ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+    : ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+  const monthsName = lang === 'en'
+    ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
   const [dateList, setDateList] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -103,20 +109,20 @@ export default function Booking() {
       {/* Title Header */}
       <div className="text-center max-w-2xl mx-auto">
         <span className="text-xs font-bold uppercase tracking-wider text-[#2575fc] px-3 py-1 rounded-full bg-[#2575fc]/10 mb-2 inline-block">
-          Langkah 1 dari 3
+          {t('step1of3', 'Langkah 1 dari 3')}
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white mt-1">
-          PESAN TIKET BIOSKOP
+          {t('bookingTitle', 'PESAN TIKET BIOSKOP')}
         </h1>
         <p className="text-gray-400 text-sm mt-2">
-          Pilih film, tanggal, lokasi bioskop, dan jam tayang yang Anda inginkan.
+          {t('bookingSubtitle', 'Pilih film, tanggal, lokasi bioskop, dan jam tayang yang Anda inginkan.')}
         </p>
       </div>
 
       {/* Step 1: Select Movie */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-md">
         <label className="text-sm font-bold text-gray-300 uppercase tracking-wider block mb-4 flex items-center gap-2">
-          <Film className="w-4 h-4 text-[#2575fc]" /> 1. Pilih Film
+          <Film className="w-4 h-4 text-[#2575fc]" /> {t('step1Movie', '1. Pilih Film')}
         </label>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -151,7 +157,7 @@ export default function Booking() {
       {/* Step 2: Select Date */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-md">
         <label className="text-sm font-bold text-gray-300 uppercase tracking-wider block mb-4 flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-[#2575fc]" /> 2. Pilih Tanggal Tayang
+          <Calendar className="w-4 h-4 text-[#2575fc]" /> {t('step2Date', '2. Pilih Tanggal Tayang')}
         </label>
 
         <div className="grid grid-cols-3 sm:grid-cols-7 gap-3">
@@ -175,7 +181,7 @@ export default function Booking() {
                 <span className="text-xl sm:text-2xl font-black my-0.5">{d.dayNum}</span>
                 <span className="text-[11px] opacity-80">{d.month}</span>
                 {d.isWeekend && (
-                  <span className="text-[10px] mt-1 font-bold text-amber-300">Weekend</span>
+                  <span className="text-[10px] mt-1 font-bold text-amber-300">{lang === 'en' ? 'Weekend' : 'Akhir Pekan'}</span>
                 )}
               </button>
             );
@@ -186,7 +192,7 @@ export default function Booking() {
       {/* Step 3: Select Cinema */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-md">
         <label className="text-sm font-bold text-gray-300 uppercase tracking-wider block mb-4 flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-[#2575fc]" /> 3. Pilih Bioskop
+          <MapPin className="w-4 h-4 text-[#2575fc]" /> {t('step3Cinema', '3. Pilih Bioskop')}
         </label>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -212,7 +218,7 @@ export default function Booking() {
                   <p className="text-xs text-gray-400 mt-1 line-clamp-2">{c.address}</p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-gray-400">Harga:</span>
+                  <span className="text-xs text-gray-400">{t('ticketPriceLabel', 'Harga:')}</span>
                   <span className="text-sm font-bold text-emerald-400">
                     Rp {price.toLocaleString('id-ID')}
                   </span>
@@ -226,7 +232,7 @@ export default function Booking() {
       {/* Step 4: Select Showtime */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-md">
         <label className="text-sm font-bold text-gray-300 uppercase tracking-wider block mb-4 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-[#2575fc]" /> 4. Pilih Jam Tayang
+          <Clock className="w-4 h-4 text-[#2575fc]" /> {t('step4Time', '4. Pilih Jam Tayang')}
         </label>
 
         <div className="flex flex-wrap gap-4">
@@ -249,7 +255,7 @@ export default function Booking() {
                 }`}
               >
                 {time}
-                {isPast && <span className="block text-[10px] font-normal no-underline">Berlalu</span>}
+                {isPast && <span className="block text-[10px] font-normal no-underline">{t('passed', 'Berlalu')}</span>}
               </button>
             );
           })}
@@ -264,7 +270,7 @@ export default function Booking() {
             {selectedCinema.name} • {selectedDate?.formatted} {selectedTime ? `| ${selectedTime} WIB` : ""}
           </p>
           <p className="text-xs text-emerald-400 font-semibold mt-1">
-            Rp {currentPrice.toLocaleString('id-ID')} / tiket ({selectedDate?.isWeekend ? 'Weekend' : 'Weekday'})
+            Rp {currentPrice.toLocaleString('id-ID')} {t('perTicket', '/ tiket')} ({selectedDate?.isWeekend ? (lang === 'en' ? 'Weekend' : 'Akhir Pekan') : (lang === 'en' ? 'Weekday' : 'Hari Kerja')})
           </p>
         </div>
 
@@ -273,7 +279,7 @@ export default function Booking() {
           disabled={!selectedTime}
           className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-bold text-base shadow-xl shadow-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 hover:scale-105 active:scale-95 transition-all"
         >
-          <span>Pilih Kursi Bioskop</span>
+          <span>{t('proceedToSeats', 'Pilih Kursi Bioskop')}</span>
           <ArrowRight className="w-5 h-5" />
         </button>
       </div>

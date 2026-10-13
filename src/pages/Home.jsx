@@ -7,9 +7,11 @@ import MovieCard from '../components/movies/MovieCard';
 import MovieFilter from '../components/movies/MovieFilter';
 import TrailerModal from '../components/TrailerModal';
 import ShowtimeCountdown from '../components/common/ShowtimeCountdown';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { t, lang } = useLanguage();
 
   // Hero Carousel State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -125,7 +127,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a] via-black/40 to-transparent flex flex-col justify-end p-6 sm:p-12">
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-xs font-semibold text-white w-fit mb-3 shadow-md">
-                  <Sparkles className="w-3.5 h-3.5" /> Featured Spotlight
+                  <Sparkles className="w-3.5 h-3.5" /> {t('featuredSpotlight')}
                 </span>
                 <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 drop-shadow-md">
                   {slide.title}
@@ -139,14 +141,14 @@ export default function Home() {
                     className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/30"
                   >
                     <Ticket className="w-5 h-5" />
-                    <span>Pesan Tiket Sekarang</span>
+                    <span>{t('bookNow')}</span>
                   </Link>
                   <button
                     onClick={() => setActiveTrailer({ title: moviesData[0].title, url: moviesData[0].trailer })}
                     className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-semibold transition-colors"
                   >
                     <Play className="w-5 h-5 text-red-400 fill-red-400" />
-                    <span>Tonton Trailer</span>
+                    <span>{t('watchTrailer')}</span>
                   </button>
                 </div>
               </div>
@@ -190,10 +192,10 @@ export default function Home() {
           <div>
             <div className="flex items-center gap-2 text-[#2575fc] text-sm font-semibold mb-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[#2575fc] animate-ping" />
-              SEDANG TAYANG DI BIOSKOP
+              {t('nowShowing').toUpperCase()}
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight relative inline-block">
-              NOW SHOWING IN CINEFLIX
+              {lang === 'id' ? 'SEDANG TAYANG DI CINEFLIX' : 'NOW SHOWING IN CINEFLIX'}
               <span className="block h-1.5 w-1/3 bg-gradient-to-r from-[#6a11cb] to-[#2575fc] rounded-full mt-2"></span>
             </h2>
           </div>
@@ -230,7 +232,7 @@ export default function Home() {
         {/* Movies Horizontal Scroll Carousel */}
         {displayedMovies.length === 0 ? (
           <div className="p-12 text-center rounded-2xl bg-white/5 border border-white/10 text-gray-400">
-            Tidak ada film yang sesuai dengan pencarian atau filter genre Anda.
+            {t('noMoviesFound')}
           </div>
         ) : (
           <div

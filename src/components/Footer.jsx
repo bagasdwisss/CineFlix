@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Film, Heart, Mail, Phone, MapPin } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
+  const { t, lang } = useLanguage();
+
   return (
     <footer className="bg-[#141424] border-t border-white/10 pt-16 pb-12 mt-20 text-gray-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,7 +22,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-400 mb-6">
-              Pengalaman bioskop masa kini terbaik. Pesan tiket kapan saja dan di mana saja dengan mudah, cepat, dan nyaman.
+              {t('footerDesc')}
             </p>
             <div className="flex items-center gap-3">
               <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#2575fc] text-gray-300 hover:text-white flex items-center justify-center transition-colors">
@@ -39,21 +42,25 @@ export default function Footer() {
 
           {/* Col 2: Navigation Links */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-base tracking-wider uppercase">Jelajahi</h4>
+            <h4 className="text-white font-semibold mb-4 text-base tracking-wider uppercase">
+              {t('quickLinks')}
+            </h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="hover:text-white hover:underline transition-colors">Beranda</Link></li>
-              <li><Link to="/news" className="hover:text-white hover:underline transition-colors">Flix News & Artikel</Link></li>
-              <li><Link to="/events" className="hover:text-white hover:underline transition-colors">Flix Events & Festival</Link></li>
-              <li><Link to="/foods" className="hover:text-white hover:underline transition-colors">Flix Foods & Treats</Link></li>
-              <li><Link to="/merchandise" className="hover:text-white hover:underline transition-colors">Flix Merch & Tumbler</Link></li>
-              <li><Link to="/gift-cards" className="hover:text-white hover:underline transition-colors">E-Gift Card Bioskop</Link></li>
-              <li><Link to="/profile" className="hover:text-white hover:underline transition-colors">Tiket Saya & Passport</Link></li>
+              <li><Link to="/" className="hover:text-white hover:underline transition-colors">{t('home')}</Link></li>
+              <li><Link to="/news" className="hover:text-white hover:underline transition-colors">{t('news')}</Link></li>
+              <li><Link to="/events" className="hover:text-white hover:underline transition-colors">{t('events')}</Link></li>
+              <li><Link to="/foods" className="hover:text-white hover:underline transition-colors">{t('foods')}</Link></li>
+              <li><Link to="/merchandise" className="hover:text-white hover:underline transition-colors">{t('merchandise')}</Link></li>
+              <li><Link to="/gift-cards" className="hover:text-white hover:underline transition-colors">{t('giftCards')}</Link></li>
+              <li><Link to="/profile" className="hover:text-white hover:underline transition-colors">{t('profile')}</Link></li>
             </ul>
           </div>
 
           {/* Col 3: Cinema Locations */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-base tracking-wider uppercase">Lokasi Bioskop</h4>
+            <h4 className="text-white font-semibold mb-4 text-base tracking-wider uppercase">
+              {t('cinemas')}
+            </h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#2575fc] shrink-0 mt-0.5" />
@@ -81,22 +88,26 @@ export default function Footer() {
 
           {/* Col 4: Newsletter */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-base tracking-wider uppercase">Berlangganan Promo</h4>
+            <h4 className="text-white font-semibold mb-4 text-base tracking-wider uppercase">
+              {lang === 'id' ? 'Berlangganan Promo' : 'Newsletter & Deals'}
+            </h4>
             <p className="text-sm text-gray-400 mb-4">
-              Dapatkan info film rilis perdana, diskon tiket, dan voucher makanan langsung ke email Anda.
+              {lang === 'id' 
+                ? 'Dapatkan info film rilis perdana, diskon tiket, dan voucher makanan langsung ke email Anda.' 
+                : 'Get premiere releases, ticket discounts, and concession vouchers directly to your inbox.'}
             </p>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Terima kasih! Anda telah terdaftar dalam newsletter CineFlix.'); }} className="space-y-2">
+            <form onSubmit={(e) => { e.preventDefault(); alert(lang === 'id' ? 'Terima kasih! Anda telah terdaftar dalam newsletter CineFlix.' : 'Thank you! You are now subscribed to CineFlix newsletter.'); }} className="space-y-2">
               <input
                 type="email"
-                placeholder="Alamat email Anda..."
+                placeholder={lang === 'id' ? "Alamat email Anda..." : "Your email address..."}
                 required
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#2575fc]"
               />
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6a11cb] to-[#2575fc] hover:opacity-90 transition-opacity"
+                className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6a11cb] to-[#2575fc] hover:opacity-90 transition-opacity cursor-pointer"
               >
-                Langganan Sekarang
+                {lang === 'id' ? 'Langganan Sekarang' : 'Subscribe Now'}
               </button>
             </form>
           </div>
@@ -105,11 +116,11 @@ export default function Footer() {
 
         {/* Bottom copyright */}
         <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-          <p>&copy; {new Date().getFullYear()} CineFlix. All rights reserved. Book Anytime, Anywhere.</p>
+          <p>&copy; {new Date().getFullYear()} CineFlix. {t('copyright')} Book Anytime, Anywhere.</p>
           <div className="flex items-center gap-6">
-            <span className="hover:text-gray-400 cursor-pointer">Syarat & Ketentuan</span>
-            <span className="hover:text-gray-400 cursor-pointer">Kebijakan Privasi</span>
-            <span className="hover:text-gray-400 cursor-pointer">Bantuan</span>
+            <span className="hover:text-gray-400 cursor-pointer">{lang === 'id' ? 'Syarat & Ketentuan' : 'Terms of Service'}</span>
+            <span className="hover:text-gray-400 cursor-pointer">{lang === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy'}</span>
+            <span className="hover:text-gray-400 cursor-pointer">{lang === 'id' ? 'Bantuan' : 'Support'}</span>
           </div>
         </div>
       </div>

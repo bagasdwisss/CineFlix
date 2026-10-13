@@ -3,11 +3,13 @@ import { Gift, Heart, Film, Sparkles, Send, Copy, CheckCircle2, CreditCard, Shie
 import { giftCardThemes, giftCardPresets } from '../data/giftCardsData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useLanguage } from '../context/LanguageContext';
 import confetti from 'canvas-confetti';
 
 export default function GiftCards() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { t, lang } = useLanguage();
 
   const [selectedTheme, setSelectedTheme] = useState(giftCardThemes[0]);
   const [selectedAmount, setSelectedAmount] = useState(giftCardPresets[1].amount);
@@ -79,13 +81,13 @@ export default function GiftCards() {
       {/* Header Banner */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-pink-300 text-xs font-bold uppercase tracking-wider">
-          <Gift className="w-3.5 h-3.5" /> CineFlix Digital Gift Card
+          <Gift className="w-3.5 h-3.5" /> {t('giftBadge', 'CineFlix Digital Gift Card')}
         </span>
         <h1 className="text-3xl sm:text-5xl font-black text-white font-['Cinzel',serif] tracking-wide">
-          E-GIFT CARD & VOUCHER NONTON
+          {t('giftTitle', 'FLIX E-GIFT CARDS')}
         </h1>
         <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
-          Kado terindah untuk sahabat, pasangan, atau keluarga. Hadiahkan saldo tiket bioskop & camilan yang bisa langsung digunakan kapan saja!
+          {t('giftSubtitle', 'Kirim hadiah tiket bioskop dan camilan spesial kepada sahabat, kerabat, atau orang tersayang.')}
         </p>
       </div>
 
@@ -95,7 +97,7 @@ export default function GiftCards() {
         <div className="lg:col-span-5 space-y-6">
           <div className="sticky top-28 space-y-4">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block text-center lg:text-left">
-              Pratinjau Kartu Hadiah Digital:
+              {lang === 'en' ? 'Digital Gift Card Live Preview:' : 'Pratinjau Kartu Hadiah Digital:'}
             </span>
 
             {/* Simulated Metallic Foil Gift Card */}

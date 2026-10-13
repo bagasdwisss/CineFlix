@@ -8,6 +8,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useLanguage } from '../context/LanguageContext';
 import { moviesData } from '../data/moviesData';
 import ETicketModal from '../components/common/ETicketModal';
 import TicketScannerModal from '../components/common/TicketScannerModal';
@@ -17,6 +18,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const { user, logout, updateProfile, toggleWatchlist, changePassword, redeemFlixPoints } = useAuth();
   const { showToast } = useToast();
+  const { t, lang } = useLanguage();
 
   const [activeTab, setActiveTab] = useState('tickets'); // Default to 'tickets'
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -245,7 +247,7 @@ export default function Profile() {
             >
               <span className="flex items-center gap-3">
                 <Ticket className="w-5 h-5 text-amber-300" />
-                <span>Riwayat Tiket & Barcode</span>
+                <span>{lang === 'en' ? 'Ticket History & Barcodes' : 'Riwayat Tiket & Barcode'}</span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold">
                 {user.ticketHistory?.length || 0}
@@ -261,7 +263,7 @@ export default function Profile() {
               }`}
             >
               <User className="w-5 h-5 text-blue-300" />
-              <span>Informasi Profil Akun</span>
+              <span>{lang === 'en' ? 'Account Profile Info' : 'Informasi Profil Akun'}</span>
             </button>
 
             <button
@@ -274,7 +276,7 @@ export default function Profile() {
             >
               <span className="flex items-center gap-3">
                 <Bookmark className="w-5 h-5 text-purple-300" />
-                <span>Film Watchlist Saya</span>
+                <span>{lang === 'en' ? 'My Movie Watchlist' : 'Film Watchlist Saya'}</span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold">
                 {user.watchlist?.length || 0}
@@ -291,7 +293,7 @@ export default function Profile() {
             >
               <span className="flex items-center gap-3">
                 <Sparkles className="w-5 h-5 text-emerald-300" />
-                <span>Cinema Passport Bioskop</span>
+                <span>{lang === 'en' ? 'Cinema Passport' : 'Cinema Passport Bioskop'}</span>
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
                 NEW 🛂
@@ -308,7 +310,7 @@ export default function Profile() {
             >
               <span className="flex items-center gap-3">
                 <Gift className="w-5 h-5 text-amber-300" />
-                <span>Tukar Poin &amp; Hadiah</span>
+                <span>{lang === 'en' ? 'Redeem Points & Gifts' : 'Tukar Poin & Hadiah'}</span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold">
                 {user.vouchers?.length || 0}
@@ -325,7 +327,7 @@ export default function Profile() {
             >
               <span className="flex items-center gap-3">
                 <ShoppingBag className="w-5 h-5 text-pink-300" />
-                <span>Pesanan Merch &amp; Tumbler</span>
+                <span>{lang === 'en' ? 'Merch & Tumbler Orders' : 'Pesanan Merch & Tumbler'}</span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold">
                 {merchOrders.length}
@@ -341,7 +343,7 @@ export default function Profile() {
               }`}
             >
               <Settings className="w-5 h-5 text-gray-300" />
-              <span>Pengaturan & Keamanan</span>
+              <span>{lang === 'en' ? 'Settings & Security' : 'Pengaturan & Keamanan'}</span>
             </button>
 
             <div className="pt-3 mt-2 border-t border-white/5">

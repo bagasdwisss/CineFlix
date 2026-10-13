@@ -6,20 +6,23 @@ import { AuthProvider } from './context/AuthContext';
 import { BookingProvider } from './context/BookingContext';
 import { ToastProvider } from './context/ToastContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>
-      <LanguageProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <BookingProvider>
-              <App />
-            </BookingProvider>
-          </AuthProvider>
-        </ToastProvider>
-      </LanguageProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <BookingProvider>
+                <App />
+              </BookingProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </HashRouter>
   </React.StrictMode>
 );

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useBooking } from '../context/BookingContext';
 import { useToast } from '../context/ToastContext';
+import { useLanguage } from '../context/LanguageContext';
 import BookingTimer from '../components/booking/BookingTimer';
 import SeatPOVModal from '../components/booking/SeatPOVModal';
 import SplitBillModal from '../components/booking/SplitBillModal';
@@ -67,6 +68,7 @@ export default function SeatSelection() {
   const navigate = useNavigate();
   const { bookingData, setBookingData, getSlotOccupiedSeats } = useBooking();
   const { showToast } = useToast();
+  const { t, lang } = useLanguage();
 
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedCombo, setSelectedCombo] = useState(null);
@@ -203,7 +205,7 @@ export default function SeatSelection() {
             onClick={() => navigate('/booking')}
             className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white mb-2 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Ganti Jadwal
+            <ArrowLeft className="w-3.5 h-3.5" /> {lang === 'en' ? 'Change Schedule' : 'Ganti Jadwal'}
           </button>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
             {bookingData.movie}
@@ -220,13 +222,13 @@ export default function SeatSelection() {
               onClick={() => openPOVForSeat(selectedSeats[0] || 'D8')}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/30 border border-purple-500/50 hover:bg-purple-600/50 text-purple-200 text-xs font-bold transition-all shadow-md"
             >
-              <Eye className="w-3.5 h-3.5 text-purple-300" /> 3D POV Layar
+              <Eye className="w-3.5 h-3.5 text-purple-300" /> {t('previewPOV', '3D POV Layar')}
             </button>
             <button
               onClick={() => setIsComboModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 text-xs font-bold transition-all"
             >
-              <Utensils className="w-3.5 h-3.5" /> Paket FnB Hemat
+              <Utensils className="w-3.5 h-3.5" /> {t('fnbCombo', 'Paket FnB Hemat')}
             </button>
           </div>
         </div>
@@ -394,9 +396,9 @@ export default function SeatSelection() {
       {/* Summary Floating Bar */}
       <div className="bg-gradient-to-r from-[#6a11cb]/20 to-[#2575fc]/20 border border-[#2575fc]/30 rounded-2xl p-6 sm:p-8 backdrop-blur-md flex flex-col lg:flex-row items-center justify-between gap-6 shadow-2xl">
         <div className="space-y-1 text-center lg:text-left">
-          <div className="text-xs text-gray-400 uppercase tracking-wider">Tempat Duduk Terpilih</div>
+          <div className="text-xs text-gray-400 uppercase tracking-wider">{t('selectedSeatsLabel', 'Tempat Duduk Terpilih')}</div>
           <div className="text-lg font-bold text-white">
-            {selectedSeats.length > 0 ? selectedSeats.join(', ') : 'Belum ada kursi dipilih'}
+            {selectedSeats.length > 0 ? selectedSeats.join(', ') : t('noSeatsSelected', 'Belum ada kursi dipilih')}
           </div>
           <div className="text-xs text-gray-300">
             {selectedSeats.length > 0 ? (
@@ -404,7 +406,7 @@ export default function SeatSelection() {
                 {selectedSeats.map(s => `${s} (${getSeatCategory(s).name})`).join(', ')}
               </span>
             ) : (
-              'Silakan klik salah satu kursi di atas'
+              lang === 'en' ? 'Please click on any seat above' : 'Silakan klik salah satu kursi di atas'
             )}
           </div>
         </div>
@@ -417,12 +419,12 @@ export default function SeatSelection() {
               className="w-full sm:w-auto px-4 py-3 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 font-bold text-xs flex items-center justify-center gap-2 transition-all"
             >
               <Users className="w-4 h-4 text-purple-300" />
-              Pesan Bareng (Split Bill)
+              {t('splitBill', 'Pesan Bareng (Split Bill)')}
             </button>
           )}
 
           <div className="text-center sm:text-right">
-            <span className="text-xs text-gray-400 block">Total Pembayaran</span>
+            <span className="text-xs text-gray-400 block">{lang === 'en' ? 'Total Payment' : 'Total Pembayaran'}</span>
             <span className="text-2xl font-black text-emerald-400">
               Rp {totalPrice.toLocaleString('id-ID')}
             </span>
@@ -433,7 +435,7 @@ export default function SeatSelection() {
             disabled={selectedSeats.length === 0}
             className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#6a11cb] to-[#2575fc] text-white font-bold text-sm shadow-xl shadow-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 hover:scale-105 active:scale-95 transition-all"
           >
-            Lanjut ke Pembayaran
+            {t('proceedToPayment', 'Lanjut ke Pembayaran')}
           </button>
         </div>
       </div>
